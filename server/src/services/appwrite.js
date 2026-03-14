@@ -1,4 +1,4 @@
-import { Client, Storage, ID, Permission } from "node-appwrite";
+import { Client, Storage, ID } from "node-appwrite";
 import { InputFile } from 'node-appwrite/file';
 
 
@@ -41,4 +41,14 @@ export const listAllFiles = async () => {
   });
   return result
   // console.log(result);
+}
+
+export const downloadFile = async function downloadFromAppwrite(fileId) {
+  // Returns the file as an ArrayBuffer
+  const arrayBuffer = await storage.getFileDownload(
+    process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID,
+    fileId
+  )
+  console.log()
+  return Buffer.from(arrayBuffer)
 }

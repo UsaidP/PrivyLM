@@ -5,7 +5,7 @@ import multer from 'multer'
 import { Queue } from "bullmq";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { ChatGroq } from "@langchain/groq";
-import { listAllFiles, uploadPDF } from './src/services/appwrite.js';
+import { downloadFile, listAllFiles, uploadPDF } from './src/services/appwrite.js';
 
 const queue = new Queue("file-upload-queue", {
   connection: {
@@ -25,24 +25,23 @@ const upload = multer({ storage: storage });
 
 app.post("/upload/pdf", upload.array("pdf"), async (req, res) => {
   try {
-
-
-    if (!req.files || !req.files > 0) {
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({ err: "No file found" })
     }
     const upload_promises = req.files.map(file => uploadPDF(file.buffer, file.originalname))
-    // console.log(upload_promises)
 
-    const upload_file = await Promise.all(upload_promises)
-    // console.log(upload_file)
+    const uploaded_files = await Promise.all(upload_promises)
+    const fileIds = uploaded_files.map(f => f.$id);
 
-    const paths = await listAllFiles();
-    console.log("Paths", paths)
+    console.log("Uploaded and Queuing File IDs:", fileIds);
 
+    // Pass the IDs to the worker, not the giant files themselves!
+    await queue.add("file-upload", { fileIds });
 
-    await queue.add("file-upload", JSON.stringify({ path: paths }));
-    res.json({ message: "PDFs queued for processing", files: paths.length });
+    res.json({ message: "PDFs queued for processing", fileIds });
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });

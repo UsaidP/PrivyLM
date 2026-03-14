@@ -4,6 +4,7 @@ import { Worker } from 'bullmq';
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { downloadFile } from './src/services/appwrite.js';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const BATCH_SIZE = 100;
@@ -31,14 +32,21 @@ const worker = new Worker(
   async job => {
     try {
       console.log("Job received:", job.id);
-      console.log(job.data)
-      const data = JSON.parse(job.data);
+      const data = job.data;
+
+      console.log("DATA:", data)
 
       // ── 1. Load PDFs ──────────────────────────────────────────────────
       const allDocs = [];
-      for (const filePath of data.path) {
-        console.log("Loading PDF:", filePath);
-        const loader = new PDFLoader(filePath);
+      for (const fileId of data.fileIds) {
+        console.log("Downloading PDF from Appwrite:", fileId);
+
+        const fileBuffer = await downloadFile(fileId);
+
+        // Convert Buffer to Blob for LangChain's PDFLoader
+        const blob = new Blob([fileBuffer], { type: 'application/pdf' });
+
+        const loader = new PDFLoader(blob);
         const docs = await loader.load();
         console.log("  →", docs.length, "pages");
         allDocs.push(...docs);
