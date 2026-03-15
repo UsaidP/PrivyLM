@@ -1,121 +1,57 @@
 import 'dotenv/config'
-import { randomUUID } from 'node:crypto';
 import { Worker } from 'bullmq';
-import { QdrantClient } from "@qdrant/js-client-rest";
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { downloadFile } from './src/services/appwrite.js';
+import { embedTexts } from './src/services/embeddings.js';
+import { ensureCollection, upsertVectors, fileAlreadyIndexed } from './src/services/qdrant.js';
+import { processPDFs } from './src/workers/pdf-worker.js';
 
-// ─── Config ───────────────────────────────────────────────────────────────────
 const BATCH_SIZE = 100;
 const COLLECTION = "docs";
-const EMBED_API = "http://localhost:11434/api/embed";
-const EMBED_MODEL = "nomic-embed-text";
-
-// ─── Embed via Ollama Local ──────────────────────────────────────────────────
-async function embedTexts(texts) {
-  const res = await fetch(EMBED_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: EMBED_MODEL, input: texts }),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Embed API failed (${res.status}): ${err}`);
-  }
-  const data = await res.json();
-  return data.embeddings;
-}
 
 const worker = new Worker(
   'file-upload-queue',
   async job => {
-    try {
-      console.log("Job received:", job.id);
-      const data = job.data;
+    console.log("Job received:", job.id);
+    const data = job.data;
+    console.log("DATA:", data);
 
-      console.log("DATA:", data)
-
-      // ── 1. Load PDFs ──────────────────────────────────────────────────
-      const allDocs = [];
-      for (const fileId of data.fileIds) {
-        console.log("Downloading PDF from Appwrite:", fileId);
-
-        const fileBuffer = await downloadFile(fileId);
-
-        // Convert Buffer to Blob for LangChain's PDFLoader
-        const blob = new Blob([fileBuffer], { type: 'application/pdf' });
-
-        const loader = new PDFLoader(blob);
-        const docs = await loader.load();
-        console.log("  →", docs.length, "pages");
-        allDocs.push(...docs);
+    // ── Process each file independently so we can skip duplicates ──────────
+    for (const fileId of data.fileIds) {
+      const alreadyDone = await fileAlreadyIndexed(COLLECTION, fileId);
+      if (alreadyDone) {
+        console.log(`⏩ Skipping ${fileId} — already indexed in Qdrant.`);
+        continue;
       }
 
-      // ── 2. Filter & split ─────────────────────────────────────────────
-      const validDocs = allDocs.filter(d => typeof d.pageContent === 'string' && d.pageContent.trim().length > 0);
-      const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 200 });
-      const splitDocs = await splitter.splitDocuments(validDocs);
-      console.log("Split into", splitDocs.length, "chunks");
+      console.log(`📄 Processing new file: ${fileId}`);
+      const chunks = await processPDFs({ fileIds: [fileId] });
 
-      // ── 3. Delete old collection ──────────────────────────────────────
-      const client = new QdrantClient({ url: 'http://localhost:6333' });
-      try {
-        // await client.deleteCollection(COLLECTION);
-        // console.log("Deleted old collection");
-      } catch { /* OK */ }
+      if (!chunks || chunks.length === 0) {
+        console.warn(`⚠️  No chunks found for ${fileId}, skipping.`);
+        continue;
+      }
 
-      // ── 4. Get vector dimension ───────────────────────────────────────
-      const testVec = await embedTexts(["test"]);
+      // ── Get vector dimension from first chunk ─────────────────────────
+      const testVec = await embedTexts([chunks[0].pageContent]);
       const vectorSize = testVec[0].length;
       console.log("Vector dimension:", vectorSize);
+      await ensureCollection(COLLECTION, vectorSize);
 
-      // ── 5. Create collection ──────────────────────────────────────────
-      try {
-        await client.createCollection(COLLECTION, {
-          vectors: { size: vectorSize, distance: "Cosine" },
-        });
-        console.log("Created collection:", COLLECTION);
-      } catch (err) {
-        // Qdrant throws 409 if the collection already exists. This is expected!
-        if (err.status === 409 || err?.data?.status?.error?.includes("already exists")) {
-          console.log("Collection already exists, skipping creation");
-        } else {
-          throw err;
-        }
-      }
+      // ── Process in batches ─────────────────────────────────────────────
+      const totalBatches = Math.ceil(chunks.length / BATCH_SIZE);
+      console.log(`Processing ${totalBatches} batches for file ${fileId}...`);
 
-      // ── 6. Process in batches ─────────────────────────────────────────
-      const totalBatches = Math.ceil(splitDocs.length / BATCH_SIZE);
-      console.log(`Processing ${totalBatches} batches...`);
-
-      for (let i = 0; i < splitDocs.length; i += BATCH_SIZE) {
+      for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
         const batchNum = Math.floor(i / BATCH_SIZE) + 1;
-        const batch = splitDocs.slice(i, i + BATCH_SIZE);
+        const batch = chunks.slice(i, i + BATCH_SIZE);
         const texts = batch.map(d => d.pageContent);
-
-        // Embed entire batch in one API call
         const vectors = await embedTexts(texts);
-
-        // Upsert to Qdrant
-        const points = vectors.map((vec, idx) => ({
-          id: randomUUID(), // Generate a unique UUID so we don't overwrite previous uploads!
-          vector: vec,
-          payload: {
-            pageContent: batch[idx].pageContent,
-            metadata: batch[idx].metadata,
-          },
-        }));
-
-        await client.upsert(COLLECTION, { points });
-        console.log(`  ✓ Batch ${batchNum}/${totalBatches} (${batch.length} chunks)`);
+        await upsertVectors(COLLECTION, vectors, batch, batchNum, totalBatches);
       }
 
-      console.log("✅ All documents indexed!");
-    } catch (err) {
-      console.error("WORKER ERROR:", err);
-      throw err;
+      console.log(`✅ File ${fileId} indexed successfully!`);
     }
+
+    console.log("✅ All files processed!");
   },
   {
     connection: {
@@ -129,3 +65,4 @@ const worker = new Worker(
 
 worker.on('completed', job => console.log(`Job ${job.id} completed`));
 worker.on('failed', (job, err) => console.error(`Job ${job.id} FAILED:`, err.message));
+

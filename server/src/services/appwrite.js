@@ -49,6 +49,6 @@ export const downloadFile = async function downloadFromAppwrite(fileId) {
     process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID,
     fileId
   )
-  console.log()
+  console.log(`Downloaded file ${fileId} from Appwrite (size: ${arrayBuffer.byteLength} bytes)`);
   return Buffer.from(arrayBuffer)
 }

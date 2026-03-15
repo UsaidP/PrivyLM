@@ -2,17 +2,13 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
-import { Queue } from "bullmq";
+import { asyncHandler } from "./src/utils/async-handler.js";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { ChatGroq } from "@langchain/groq";
 import { downloadFile, listAllFiles, uploadPDF } from './src/services/appwrite.js';
+import addToQueue from './src/queues/pdf-queue.js';
 
-const queue = new Queue("file-upload-queue", {
-  connection: {
-    host: "localhost",
-    port: "6379"
-  }
-});
+
 
 const app = express();
 app.use(cors());
@@ -23,7 +19,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({ storage: storage });
 
-app.post("/upload/pdf", upload.array("pdf"), async (req, res) => {
+app.post("/upload/pdf", upload.array("pdf"), asyncHandler(async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ err: "No file found" })
@@ -36,7 +32,7 @@ app.post("/upload/pdf", upload.array("pdf"), async (req, res) => {
     console.log("Uploaded and Queuing File IDs:", fileIds);
 
     // Pass the IDs to the worker, not the giant files themselves!
-    await queue.add("file-upload", { fileIds });
+    await addToQueue(fileIds);
 
     res.json({ message: "PDFs queued for processing", fileIds });
 
@@ -44,7 +40,7 @@ app.post("/upload/pdf", upload.array("pdf"), async (req, res) => {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
-});
+}));
 
 
 const EMBED_API = "http://localhost:11434/api/embed";
@@ -60,6 +56,35 @@ async function embedQuery(text) {
   const data = await res.json();
   return data.embeddings[0];
 }
+
+app.post("/search", async (req, res) => {
+  try {
+    const { query, limit = 5 } = req.body;
+    if (!query) return res.status(400).json({ error: "query is required" });
+
+    // Embed the query
+    const queryVector = await embedQuery(query);
+
+    // Search Qdrant
+    const client = new QdrantClient({ url: 'http://localhost:6333' });
+    const searchResults = await client.search("docs", {
+      vector: queryVector,
+      limit: parseInt(limit),
+      with_payload: true,
+    });
+
+    const passages = searchResults.map(r => ({
+      content: r.payload.pageContent,
+      metadata: r.payload.metadata,
+      score: r.score,
+    }));
+
+    res.json({ passages });
+  } catch (err) {
+    console.error("Search error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.post("/chat", async (req, res) => {
   try {
