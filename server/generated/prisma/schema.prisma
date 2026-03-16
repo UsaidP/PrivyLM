@@ -1,0 +1,122 @@
+// prisma/schema.prisma
+// PDF-RAG project database schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// User (identity managed by Clerk)
+// ─────────────────────────────────────────────
+
+model User {
+  id          String   @id @default(cuid())
+  clerkUserId String   @unique
+  email       String   @unique
+  name        String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  notebooks    Notebook[]
+  chatSessions ChatSession[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// Notebook — workspace that groups documents
+// ─────────────────────────────────────────────
+
+model Notebook {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  documents    Document[]
+  chatSessions ChatSession[]
+
+  @@map("notebooks")
+}
+
+// ─────────────────────────────────────────────
+// Document — a PDF uploaded by the user
+// ─────────────────────────────────────────────
+
+model Document {
+  id          String         @id @default(cuid())
+  name        String // original file name
+  appwriteId  String         @unique // Appwrite storage file ID
+  mimeType    String         @default("application/pdf")
+  sizeBytes   Int?
+  status      DocumentStatus @default(PENDING)
+  totalChunks Int? // number of chunks indexed in Qdrant
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  notebookId String
+  notebook   Notebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+enum DocumentStatus {
+  PENDING // uploaded, not yet queued
+  QUEUED // added to BullMQ queue
+  PROCESSING // worker is actively indexing
+  INDEXED // fully embedded and stored in Qdrant
+  FAILED // processing failed
+}
+
+// ─────────────────────────────────────────────
+// ChatSession — a conversation within a notebook
+// ─────────────────────────────────────────────
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  title     String? // auto-generated or user-set
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  notebookId String
+  notebook   Notebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
+
+  messages ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+// ─────────────────────────────────────────────
+// ChatMessage — a single turn in a chat session
+// ─────────────────────────────────────────────
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  role      MessageRole // USER or ASSISTANT
+  content   String      @db.Text
+  sources   Json? // array of Qdrant passage snippets used as context
+  createdAt DateTime    @default(now())
+
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
