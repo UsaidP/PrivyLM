@@ -1,11 +1,15 @@
 import 'dotenv/config'
 import { Worker } from 'bullmq';
-import { embedTexts } from './src/services/embeddings.js';
+import { embedTexts, EMBED_CONFIG } from './src/services/embeddings.js';
 import { ensureCollection, upsertVectors, fileAlreadyIndexed } from './src/services/qdrant.js';
 import { processPDFs } from './src/workers/pdf-worker.js';
+import { logVectorConfig } from './src/config/vector-config.js';
 
 const BATCH_SIZE = 100;
-const COLLECTION = "docs";
+const COLLECTION = EMBED_CONFIG.COLLECTION_NAME;
+
+// Log configuration on startup
+logVectorConfig();
 
 const worker = new Worker(
   'file-upload-queue',

@@ -1,11 +1,17 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { randomUUID } from "crypto";
-
+import { EMBED_CONFIG, getCollectionConfig, validateVectorDimension } from "../config/vector-config.js";
 
 const client = new QdrantClient({ url: 'http://localhost:6333' });
 
 export const ensureCollection = async (COLLECTION, vectorSize) => {
   try {
+    // Use configured dimension if vectorSize not provided
+    const expectedSize = vectorSize || EMBED_CONFIG.DIMENSION;
+
+    // Validate the vector size matches expected
+    validateVectorDimension(expectedSize);
+
     // Check if collection exists
     const collections = await client.getCollections();
     const existing = collections.collections.find(c => c.name === COLLECTION);
@@ -13,18 +19,18 @@ export const ensureCollection = async (COLLECTION, vectorSize) => {
       // Get collection info
       const info = await client.getCollection(COLLECTION);
       const currentSize = info.config.params.vectors.size;
-      if (currentSize !== vectorSize) {
-        console.log(`Collection "${COLLECTION}" exists with size ${currentSize}, but need ${vectorSize}. Deleting and recreating.`);
+      if (currentSize !== expectedSize) {
+        console.log(`⚠️ Collection "${COLLECTION}" exists with size ${currentSize}, but need ${expectedSize}. Deleting and recreating.`);
         await client.deleteCollection(COLLECTION);
       } else {
-        console.log(`Collection "${COLLECTION}" already exists with correct size ${vectorSize}.`);
+        console.log(`✓ Collection "${COLLECTION}" already exists with correct size ${expectedSize}.`);
         return;
       }
     }
-    await client.createCollection(COLLECTION, {
-      vectors: { size: vectorSize, distance: 'Cosine' },
-    });
-    console.log(`Collection "${COLLECTION}" created with vector size ${vectorSize}.`);
+
+    const config = getCollectionConfig();
+    await client.createCollection(COLLECTION, config);
+    console.log(`✓ Collection "${COLLECTION}" created with vector size ${expectedSize}.`);
   } catch (error) {
     console.error(`Error ensuring collection "${COLLECTION}":`, error);
     throw error;
@@ -66,6 +72,11 @@ export const fileAlreadyIndexed = async (COLLECTION, fileId) => {
 
 export const searchVectors = async (COLLECTION, queryVector, limit = 5) => {
   try {
+    // Validate query vector dimension before searching
+    if (queryVector && queryVector.length) {
+      validateVectorDimension(queryVector.length);
+    }
+
     const result = await client.search(COLLECTION, {
       vector: queryVector,
       limit: limit,

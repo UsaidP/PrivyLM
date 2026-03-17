@@ -32,9 +32,14 @@
   --warning-muted: rgba(251, 191, 36, 0.1);
   --error: #f87171;
 
+  --success-muted: rgba(52, 211, 153, 0.1);
+  --warning: #fbbf24;
+  --warning-muted: rgba(251, 191, 36, 0.1);
+  --error: #f87171;
+
   /* ─── Typography ─── */
-  --font-sans: 'Inter', var(--font-geist-sans), system-ui, -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', var(--font-geist-mono), 'SF Mono', monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', monospace;
 
   /* ─── Spacing ─── */
   --sidebar-width: 320px;
@@ -132,7 +137,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 100vh;
 }
 
 /* ─── Scrollbar ─── */
@@ -197,9 +203,11 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
