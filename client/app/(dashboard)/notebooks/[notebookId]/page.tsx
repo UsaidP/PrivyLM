@@ -1,10 +1,9 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { NotebookTopbar } from '@/components/notebook/NotebookTopbar';
-import { SourcesPanel } from '@/components/notebook/SourcesPanel';
-import { ChatPanelWithSessions } from '@/components/notebook/ChatPanelWithSessions';
-import { StudioPanel } from '@/components/notebook/StudioPanel';
+import { LeftSidebar } from '@/components/layout/LeftSidebar';
+import { ChatColumn } from '@/components/chat/ChatColumn';
+import { StudioSidebar } from '@/components/studio/StudioSidebar';
 import { useNotebook } from '@/hooks/useNotebooks';
 import { useChat } from '@/hooks/useChat';
 import { useSourceSelection } from '@/hooks/useSourceSelection';
@@ -22,28 +21,19 @@ export default function NotebookPage() {
 
   return (
     <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
+      display: 'grid',
+      gridTemplateColumns: '260px 1fr 300px',
+      height: '100vh',
       overflow: 'hidden',
+      margin: 0,
+      padding: 0,
     }}>
-      <NotebookTopbar notebook={notebook} />
-      <div style={{
-        display: 'flex',
-        flex: 1,
-        overflow: 'hidden',
-      }}>
-        <SourcesPanel notebookId={notebookId} />
-        <ChatPanelWithSessions
-          notebookId={notebookId}
-          onSendMessage={(text, sourceIds) => sendMessage(text, sourceIds)}
-        />
-        <StudioPanel
-          notebookId={notebookId}
-          notebook={notebook}
-          onGenerate={handleGenerate}
-        />
-      </div>
+      <LeftSidebar notebookId={notebookId} />
+      <ChatColumn notebookId={notebookId} notebookName={notebook?.title} />
+      <StudioSidebar
+        notebookId={notebookId}
+        onGenerate={handleGenerate}
+      />
     </div>
   );
 }

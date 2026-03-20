@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Square, MessageSquare, Bot, Loader2 } from 'lucide-react';
+import { Send, Square, MessageSquare, Bot } from 'lucide-react';
 import { useChat, type Message, type Source } from '@/hooks/useChat';
 import { useDocuments } from '@/hooks/useDocuments';
 import { useSourceSelection } from '@/hooks/useSourceSelection';

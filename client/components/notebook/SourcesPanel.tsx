@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Plus, FileText, Loader2, CheckCircle, XCircle } from "lucide-react"
+import { Plus, FileText, Loader2, CheckCircle, XCircle, Trash2 } from "lucide-react"
 import { useDocuments, useDocumentMutations } from "@/hooks/useDocuments"
 import { useSourceSelection } from "@/hooks/useSourceSelection"
 import { toast } from "sonner"
@@ -43,15 +43,20 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function SourceItem({
-  doc, selected, onToggle
+  doc, selected, onToggle, onDelete
 }: {
   doc: any
   selected: boolean
   onToggle: () => void
+  onDelete?: (e: React.MouseEvent) => void
 }) {
+  const [showDelete, setShowDelete] = useState(false)
+
   return (
     <div
       onClick={(e) => { e.stopPropagation(); onToggle() }}
+      onMouseEnter={() => setShowDelete(true)}
+      onMouseLeave={() => setShowDelete(false)}
       style={{
         display: "flex",
         alignItems: "flex-start",
@@ -63,6 +68,7 @@ function SourceItem({
         border: `1px solid ${selected ? "var(--border-strong)" : "transparent"}`,
         background: selected ? "var(--bg-elevated)" : "transparent",
         transition: "all 0.12s",
+        position: "relative",
       }}
     >
       {/* Checkbox */}
@@ -134,6 +140,38 @@ function SourceItem({
           </div>
         )}
       </div>
+
+      {/* Delete Button */}
+      {showDelete && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete?.(e) }}
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            width: 24,
+            height: 24,
+            borderRadius: 4,
+            border: "none",
+            background: "rgba(248,113,113,0.1)",
+            color: "var(--error)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.12s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(248,113,113,0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(248,113,113,0.1)";
+          }}
+          title="Delete document"
+        >
+          <Trash2 size={14} />
+        </button>
+      )}
     </div>
   )
 }
@@ -142,7 +180,7 @@ export function SourcesPanel({ notebookId }: { notebookId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const { data: documents, isLoading } = useDocuments(notebookId)
-  const { uploadDocument } = useDocumentMutations(notebookId)
+  const { uploadDocument, deleteDocument } = useDocumentMutations(notebookId)
   const { selectedIds, toggle } = useSourceSelection()
 
   async function handleFiles(files: FileList) {
@@ -154,6 +192,18 @@ export function SourcesPanel({ notebookId }: { notebookId: string }) {
       toast.success("Upload started — processing...")
     } catch {
       toast.error("Upload failed. Try again.")
+    }
+  }
+
+  async function handleDelete(docId: string, docName: string) {
+    if (!confirm(`Delete "${docName}"? This will remove the document and its vectors.`)) {
+      return;
+    }
+    try {
+      await deleteDocument(docId)
+      toast.success(`Deleted "${docName}"`)
+    } catch {
+      toast.error(`Failed to delete "${docName}"`)
     }
   }
 
@@ -300,6 +350,10 @@ export function SourcesPanel({ notebookId }: { notebookId: string }) {
             doc={doc}
             selected={selectedIds.has(doc.id)}
             onToggle={() => toggle(doc.id)}
+            onDelete={(e) => {
+              e.stopPropagation();
+              handleDelete(doc.id, doc.name);
+            }}
           />
         ))}
 

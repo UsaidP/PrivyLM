@@ -1,27 +1,30 @@
 import { EMBED_CONFIG, validateVectorDimension } from "../config/vector-config.js";
 
-// Use Ollama for local embeddings (runs on port 11434)
-const OLLAMA_URL = "http://localhost:11434/api/embeddings";
-const OLLAMA_MODEL = "nomic-embed-text"; // 768 dimensions
+// Use Perplexity AI embeddings API (1024 dimensions)
+const EMBED_API_URL = process.env.EMBED_API_URL || "https://kimbery-grippier-renownedly.ngrok-free.dev";
+const EMBED_MODEL = process.env.EMBED_MODEL || "pplx-embed-v1-0.6b"; // 1024 dimensions
 
 // ─── Embed multiple texts ────────────────────────────────────────────────────
 export const embedTexts = async (texts) => {
-  // Use Ollama for local embeddings
   const embeddings = await Promise.all(
     texts.map(async (text) => {
-      const res = await fetch(OLLAMA_URL, {
+      const res = await fetch(`${EMBED_API_URL}/v1/embeddings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: OLLAMA_MODEL, prompt: text }),
+        body: JSON.stringify({
+          model: EMBED_MODEL,
+          input: text
+        }),
       });
 
       if (!res.ok) {
         const err = await res.text();
-        throw new Error(`Ollama Embed API failed (${res.status}): ${err}`);
+        throw new Error(`Embed API failed (${res.status}): ${err}`);
       }
 
       const data = await res.json();
-      return data.embedding;
+      // Perplexity API returns: { data: [{ embedding: [...], index: 0 }] }
+      return data.data?.[0]?.embedding;
     })
   );
 

@@ -7,14 +7,15 @@
 // Embedding model configuration
 export const EMBED_CONFIG = {
   // API endpoint for embeddings
-  API_URL: process.env.EMBED_API_URL || "https://kimbery-grippier-renownedly.ngrok-free.dev/api/embed",
-  // https://kimbery-grippier-renownedly.ngrok-free.dev/api/embed
+  API_URL: process.env.EMBED_API_URL || "https://kimbery-grippier-renownedly.ngrok-free.dev/v1/embeddings",
+
   // Model identifier
-  MODEL: process.env.EMBED_MODEL || "nomic-embed-perplexity-ai/pplx-embed-v1-0.6b",
+  MODEL: process.env.EMBED_MODEL || "pplx-embed-v1",
 
   // Expected vector dimension - update this if you change the model
-  // nomic-embed-text: 768 dimensions
-  // pplx-embed-v1-0.6b: 1024 dimensions
+  // pplx-embed-v1: 1024 dimensions (Perplexity AI)
+  // jina-embeddings-v5-text-small: 1024 dimensions
+  // text-embedding-3-large: 1024 dimensions
   DIMENSION: parseInt(process.env.VECTOR_DIMENSION) || 1024,
 
   // Collection name in Qdrant

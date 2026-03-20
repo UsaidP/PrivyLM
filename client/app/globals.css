@@ -5,72 +5,83 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* ─── Color System - Black/Grey/Teal/Light Palette ─── */
-  /* Primary colors */
-  --black: #222831;
-  --grey: #393E46;
-  --teal: #00ADB5;
-  --light: #EEEEEE;
+  /* ─── PrivyLM Brand Palette ─── */
+  --privy-paper: #f5f0e8;
+  --privy-paper-alt: #fdf6ec;
+  --privy-ink: #2c3e50;
+  --privy-ink-strong: #1e2833;
+  --privy-sage: #7a9e7e;
+  --privy-sage-soft: #a4bca4;
+  --privy-clay: #c1694f;
+  --privy-clay-soft: #e2a48d;
+  --privy-muted: #8a8b8f;
+  --privy-border: #ddd1c1;
+
+  /* Legacy base colors mapped onto PrivyLM */
+  --black: var(--privy-ink-strong);
+  --grey: #ebe2d5;
+  --teal: var(--privy-sage);
+  --light: var(--privy-paper-alt);
 
   /* Derived colors */
-  --grey-light: #4A4F5A;
-  --grey-dark: #2C3038;
-  --teal-hover: #00C4CF;
-  --teal-muted: rgba(0, 173, 181, 0.2);
+  --grey-light: #e4d7c7;
+  --grey-dark: #3b4b5f;
+  --teal-hover: #6a8e6f;
+  --teal-muted: rgba(122, 158, 126, 0.18);
 
-  /* Background mappings */
-  --bg-primary: var(--black);
-  --bg-secondary: var(--grey);
-  --bg-surface: var(--grey);
-  --bg-surface-hover: var(--grey-light);
-  --bg-elevated: var(--grey-light);
+  /* Background mappings (light, paper-first) */
+  --bg-primary: var(--privy-paper);
+  --bg-secondary: var(--privy-paper-alt);
+  --bg-surface: var(--privy-paper-alt);
+  --bg-surface-hover: #ebe2d5;
+  --bg-elevated: #e0d3c3;
 
   /* Border mappings */
-  --border-subtle: var(--grey-light);
-  --border-default: var(--grey-light);
-  --border-strong: var(--light);
+  --border-subtle: var(--privy-border);
+  --border-default: var(--privy-border);
+  --border-strong: var(--privy-ink);
 
   /* Text mappings */
-  --text-primary: var(--light);
-  --text-secondary: #B0B0B0;
-  --text-tertiary: var(--grey-light);
-  --text-muted: #888888;
+  --text-primary: var(--privy-ink-strong);
+  --text-secondary: var(--privy-muted);
+  --text-tertiary: #b0a495;
+  --text-muted: #a69988;
 
   /* Accent mappings */
-  --accent: var(--teal);
+  --accent: var(--privy-sage);
   --accent-hover: var(--teal-hover);
   --accent-muted: var(--teal-muted);
-  --accent-subtle: var(--teal-muted);
+  --accent-subtle: rgba(193, 105, 79, 0.08);
 
   /* ShadCN mappings */
-  --background: var(--black);
-  --foreground: var(--light);
-  --card: var(--grey);
-  --card-foreground: var(--light);
-  --popover: var(--grey);
-  --popover-foreground: var(--light);
-  --primary: var(--teal);
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
   --primary-foreground: var(--light);
-  --secondary: var(--grey);
-  --secondary-foreground: var(--light);
-  --muted: var(--grey);
+  --secondary: var(--bg-secondary);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-surface);
   --muted-foreground: var(--text-secondary);
   --accent-foreground: var(--light);
-  --destructive: #f87171;
+  --destructive: #b94a48;
 
-  --border: var(--grey-light);
-  --input: var(--grey);
-  --ring: var(--teal);
+  --border: var(--border-default);
+  --input: var(--bg-surface);
+  --ring: var(--privy-clay);
 
   /* Sidebar */
-  --sidebar: var(--grey);
-  --sidebar-foreground: var(--light);
-  --sidebar-primary: var(--teal);
+  --sidebar: #ede1d2;
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--accent);
   --sidebar-primary-foreground: var(--light);
-  --sidebar-accent: var(--grey-light);
-  --sidebar-accent-foreground: var(--light);
-  --sidebar-border: var(--grey-light);
-  --sidebar-ring: var(--teal);
+  --sidebar-accent: #e0d3c3;
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--privy-border);
+  --sidebar-ring: var(--ring);
 
   /* Legacy color system (for backward compatibility) */
   --color-1: var(--light);
@@ -122,6 +133,11 @@
   box-sizing: border-box;
 }
 
+html {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -158,49 +174,49 @@ body {
 }
 
 .dark {
-  /* Dark mode overrides - using new black/grey/teal palette */
-  --bg-primary: var(--black);
-  --bg-secondary: var(--grey);
-  --bg-surface: var(--grey);
-  --bg-surface-hover: var(--grey-light);
-  --bg-elevated: var(--grey-light);
+  /* Dark mode overrides — "night library" version of PrivyLM */
+  --bg-primary: #141a21;
+  --bg-secondary: #1b232e;
+  --bg-surface: #1f2832;
+  --bg-surface-hover: #273240;
+  --bg-elevated: #2a3442;
 
-  --border-subtle: var(--grey-light);
-  --border-default: var(--grey-light);
-  --border-strong: var(--light);
+  --border-subtle: #2f3a46;
+  --border-default: #374354;
+  --border-strong: #f3ece0;
 
-  --text-primary: var(--light);
-  --text-secondary: #B0B0B0;
-  --text-tertiary: var(--grey-light);
-  --text-muted: #888888;
+  --text-primary: #f3ece0;
+  --text-secondary: #c1c5c8;
+  --text-tertiary: #9aa0a6;
+  --text-muted: #7f858c;
 
-  --background: var(--black);
-  --foreground: var(--light);
-  --card: var(--grey);
-  --card-foreground: var(--light);
-  --popover: var(--grey);
-  --popover-foreground: var(--light);
-  --primary: var(--teal);
-  --primary-foreground: var(--light);
-  --secondary: var(--grey);
-  --secondary-foreground: var(--light);
-  --muted: var(--grey);
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--privy-sage);
+  --primary-foreground: #141a21;
+  --secondary: var(--bg-secondary);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-surface);
   --muted-foreground: var(--text-secondary);
-  --accent: var(--teal);
-  --accent-foreground: var(--light);
-  --destructive: #f87171;
-  --border: var(--grey-light);
-  --input: var(--grey);
-  --ring: var(--teal);
+  --accent: var(--privy-clay);
+  --accent-foreground: #fdf6ec;
+  --destructive: #b94a48;
+  --border: var(--border-default);
+  --input: var(--bg-surface);
+  --ring: var(--privy-clay);
 
-  --sidebar: var(--grey);
-  --sidebar-foreground: var(--light);
-  --sidebar-primary: var(--teal);
-  --sidebar-primary-foreground: var(--light);
-  --sidebar-accent: var(--grey-light);
-  --sidebar-accent-foreground: var(--light);
-  --sidebar-border: var(--grey-light);
-  --sidebar-ring: var(--teal);
+  --sidebar: #1b232e;
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--privy-sage);
+  --sidebar-primary-foreground: #141a21;
+  --sidebar-accent: #273240;
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-default);
+  --sidebar-ring: var(--ring);
 }
 
 /* Animations */
@@ -222,6 +238,114 @@ body {
   to {
     transform: rotate(360deg)
   }
+}
+
+/* ─── Markdown Styles ─── */
+.markdown-content h1 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #EEEEEE;
+}
+
+.markdown-content h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 12px 0 8px 0;
+  color: #EEEEEE;
+}
+
+.markdown-content h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 10px 0 6px 0;
+  color: #EEEEEE;
+}
+
+.markdown-content p {
+  margin: 0 0 8px 0;
+  color: #EEEEEE;
+}
+
+.markdown-content ul, .markdown-content ol {
+  margin: 0 0 8px 0;
+  padding-left: 20px;
+  color: #EEEEEE;
+}
+
+.markdown-content li {
+  margin-bottom: 4px;
+  color: #EEEEEE;
+}
+
+.markdown-content code {
+  background: #222831;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #EEEEEE;
+}
+
+.markdown-content pre {
+  background: #222831;
+  padding: 12px;
+  border-radius: 8px;
+  overflow: auto;
+  margin: 0 0 8px 0;
+}
+
+.markdown-content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid #00ADB5;
+  padding-left: 12px;
+  margin: 0 0 8px 0;
+  font-style: italic;
+  color: #B0B0B0;
+}
+
+.markdown-content a {
+  color: #00ADB5;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: #EEEEEE;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 8px 0;
+}
+
+.markdown-content th, .markdown-content td {
+  border: 1px solid #4A4F5A;
+  padding: 8px;
+  text-align: left;
+}
+
+.markdown-content th {
+  background: #4A4F5A;
+  font-weight: 600;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid #4A4F5A;
+  margin: 12px 0;
+}
+
+.markdown-content input[type="checkbox"] {
+  margin-right: 6px;
 }
 
 @layer base {
