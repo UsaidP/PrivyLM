@@ -78,3 +78,30 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Prisma
+prisma/migrations/
+client/prisma/migrations/
+server/prisma/migrations/
+generated/
+
+# Dependencies lock files (optional - uncomment if preferred)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Logs and temporary files
+*.log
+
+# Runtime data
+pids/
+*.seed
+
+# Environment-specific
+.env.production
+.env.test
+
+# OS and editor
+Thumbs.db
+*.sublime-project
+*.sublime-workspace

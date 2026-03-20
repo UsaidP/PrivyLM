@@ -1,41 +1,48 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
-
-const ChatComponent = dynamic(() => import('@/app/components/chat'), { ssr: false });
-const FileUploadComponent = dynamic(() => import('@/app/components/file-upload'), { ssr: false });
+import { NotebookTopbar } from '@/components/notebook/NotebookTopbar';
+import { SourcesPanel } from '@/components/notebook/SourcesPanel';
+import { ChatPanelWithSessions } from '@/components/notebook/ChatPanelWithSessions';
+import { StudioPanel } from '@/components/notebook/StudioPanel';
+import { useNotebook } from '@/hooks/useNotebooks';
+import { useChat } from '@/hooks/useChat';
+import { useSourceSelection } from '@/hooks/useSourceSelection';
 
 export default function NotebookPage() {
   const params = useParams();
   const notebookId = params.notebookId as string;
+  const { data: notebook } = useNotebook(notebookId);
+  const { sendMessage } = useChat(notebookId);
+  const { selectedIds } = useSourceSelection();
+
+  const handleGenerate = (prompt: string) => {
+    sendMessage(prompt, Array.from(selectedIds));
+  };
 
   return (
     <div style={{
       display: 'flex',
+      flexDirection: 'column',
       height: '100%',
       overflow: 'hidden',
     }}>
-      {/* Left Panel - File Upload */}
+      <NotebookTopbar notebook={notebook} />
       <div style={{
-        width: '320px',
-        borderRight: '1px solid var(--border-subtle)',
-        background: 'var(--bg-secondary)',
         display: 'flex',
-        flexDirection: 'column',
-        flexShrink: 0,
-      }}>
-        <FileUploadComponent />
-      </div>
-
-      {/* Right Panel - Chat */}
-      <div style={{
         flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--bg-primary)',
+        overflow: 'hidden',
       }}>
-        <ChatComponent />
+        <SourcesPanel notebookId={notebookId} />
+        <ChatPanelWithSessions
+          notebookId={notebookId}
+          onSendMessage={(text, sourceIds) => sendMessage(text, sourceIds)}
+        />
+        <StudioPanel
+          notebookId={notebookId}
+          notebook={notebook}
+          onGenerate={handleGenerate}
+        />
       </div>
     </div>
   );

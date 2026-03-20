@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState, useRef, useCallback, DragEvent, ChangeEvent } from 'react';
+import React, { useState, useRef, useCallback, useEffect, DragEvent, ChangeEvent } from 'react';
 import axios from 'axios';
+import { useAuth } from '@clerk/nextjs';
+import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
+type DocumentStatus = 'PENDING' | 'QUEUED' | 'PROCESSING' | 'INDEXED' | 'FAILED';
 
 interface UploadFile {
   id: string;
@@ -12,7 +15,16 @@ interface UploadFile {
   status: UploadStatus;
   progress: number;
   error?: string;
+  documentId?: string;
+  documentStatus?: DocumentStatus;
 }
+
+interface FileUploadProps {
+  notebookId: string;
+  onDocumentUploaded?: (documentIds: string[]) => void;
+}
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatBytes = (bytes: number): string => {
@@ -25,49 +37,174 @@ const formatBytes = (bytes: number): string => {
 
 const generateId = (): string => Math.random().toString(36).substring(2, 10);
 
+const getStatusBadge = (status: DocumentStatus | undefined, uploadStatus: UploadStatus) => {
+  if (uploadStatus === 'uploading') {
+    return { text: 'Uploading...', color: 'var(--warning)', bg: 'var(--warning-muted)' };
+  }
+  if (uploadStatus === 'error') {
+    return { text: 'Error', color: 'var(--error)', bg: 'transparent' };
+  }
+
+  switch (status) {
+    case 'PENDING':
+      return { text: 'Pending', color: 'var(--text-muted)', bg: 'var(--bg-surface)' };
+    case 'QUEUED':
+      return { text: 'Queued', color: 'var(--warning)', bg: 'var(--warning-muted)' };
+    case 'PROCESSING':
+      return { text: 'Processing...', color: 'var(--info)', bg: 'var(--info-muted)' };
+    case 'INDEXED':
+      return { text: 'Ready', color: 'var(--success)', bg: 'var(--success-muted)' };
+    case 'FAILED':
+      return { text: 'Failed', color: 'var(--error)', bg: 'transparent' };
+    default:
+      return { text: 'Ready', color: 'var(--success)', bg: 'var(--success-muted)' };
+  }
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
-const FileUploadComponent: React.FC = () => {
+const FileUploadComponent: React.FC<FileUploadProps> = ({ notebookId, onDocumentUploaded }) => {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { getToken } = useAuth();
 
-  const uploadFile = useCallback((id: string, file: File) => {
+  // ─── Polling for Document Status ─────────────────────────────────────────────
+  // We want to poll the server for the status of any files that are QUEUED or PROCESSING
+  useEffect(() => {
+    // Collect IDs of documents that need polling
+    const pendingIds = files
+      .filter(f => f.documentId && (f.documentStatus === 'QUEUED' || f.documentStatus === 'PROCESSING' || f.documentStatus === 'PENDING'))
+      .map(f => f.documentId!);
+      
+    if (pendingIds.length === 0) return;
+
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    const pollStatus = async () => {
+      try {
+        const token = await getToken();
+        // Just fetch the whole notebook or specific docs. Let's assume we have an endpoint that returns notebook docs
+        const res = await axios.get(`${API_BASE_URL}/api/notebooks/${notebookId}/documents`, {
+          headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+        });
+        
+        if (!isMounted) return;
+        
+        const serverDocs = res.data.data;
+        
+        setFiles(prev => prev.map(f => {
+          if (!f.documentId) return f;
+          const serverDoc = serverDocs.find((sd: any) => sd.id === f.documentId);
+          if (serverDoc) {
+            return { ...f, documentStatus: serverDoc.status };
+          }
+          return f;
+        }));
+
+        // If any are still pending, poll again in 3 seconds
+        const stillPending = serverDocs.some((sd: any) => 
+          pendingIds.includes(sd.id) && 
+          (sd.status === 'QUEUED' || sd.status === 'PROCESSING' || sd.status === 'PENDING')
+        );
+
+        if (stillPending && isMounted) {
+          timeoutId = setTimeout(pollStatus, 3000);
+        }
+      } catch (err) {
+        console.error('Failed to poll document status:', err);
+        // Retry anyway after a longer delay
+        if (isMounted) {
+          timeoutId = setTimeout(pollStatus, 5000);
+        }
+      }
+    };
+
+    // Initial poll kick-off
+    timeoutId = setTimeout(pollStatus, 2000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [files, notebookId, getToken]);
+
+  // Upload all files in a single request
+  const uploadFiles = useCallback(async (items: { id: string; file: File }[]) => {
     const formData = new FormData();
-    formData.append('pdf', file);
+    formData.append('notebookId', notebookId);
 
-    axios.post('http://localhost:8000/upload/pdf', formData, {
+    items.forEach(item => {
+      formData.append('pdf', item.file);
+    });
+
+    // Get Clerk JWT token
+    const token = await getToken();
+
+    axios.post(`${API_BASE_URL}/api/documents/upload`, formData, {
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
       onUploadProgress: (progressEvent) => {
         if (progressEvent.total) {
           const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
           setFiles(prev =>
             prev.map(f =>
-              f.id === id ? { ...f, progress: percent } : f
+              items.some(item => item.id === f.id) ? { ...f, progress: percent } : f
             )
           );
         }
       },
     })
-      .then(() => {
+      .then((response) => {
+        const uploadedDocs = response.data.data;
+        const succeededIds: string[] = [];
+
         setFiles(prev =>
-          prev.map(f =>
-            f.id === id ? { ...f, progress: 100, status: 'success' } : f
-          )
+          prev.map(f => {
+            const uploadedDoc = uploadedDocs.find((d: { name: string }) => d.name === f.file.name);
+            if (uploadedDoc && uploadedDoc.status === 'QUEUED') {
+              succeededIds.push(uploadedDoc.id);
+              return {
+                ...f,
+                progress: 100,
+                status: 'success',
+                documentId: uploadedDoc.id,
+                documentStatus: 'QUEUED'
+              };
+            } else if (uploadedDoc && uploadedDoc.status === 'FAILED') {
+              return { ...f, status: 'error', error: uploadedDoc.error };
+            }
+            return f;
+          })
         );
+
+        if (succeededIds.length > 0 && onDocumentUploaded) {
+          onDocumentUploaded(succeededIds);
+        }
       })
-      .catch(() => {
+      .catch((error) => {
+        const errorMsg = error.response?.data?.error || 'Upload failed';
+        toast.error('Upload Failed', { description: errorMsg });
         setFiles(prev =>
           prev.map(f =>
-            f.id === id ? { ...f, status: 'error', error: 'Upload failed' } : f
+            items.some(item => item.id === f.id) ? { ...f, status: 'error', error: errorMsg } : f
           )
         );
       });
-  }, []);
+  }, [notebookId, onDocumentUploaded]);
 
   const addFiles = useCallback((incoming: FileList | null) => {
     if (!incoming) return;
     const valid = Array.from(incoming).filter(f => {
-      if (f.type !== 'application/pdf') return false;
-      if (f.size > 50 * 1024 * 1024) return false;
+      if (f.type !== 'application/pdf') {
+        toast.error(`Invalid file type: ${f.name}`, { description: 'Only PDF files are supported' });
+        return false;
+      }
+      if (f.size > 50 * 1024 * 1024) {
+        toast.error(`File too large: ${f.name}`, { description: 'Maximum file size is 50MB' });
+        return false;
+      }
       return true;
     });
 
@@ -79,17 +216,19 @@ const FileUploadComponent: React.FC = () => {
     }));
 
     setFiles(prev => [...prev, ...newItems]);
-    newItems.forEach(item => uploadFile(item.id, item.file));
-  }, [uploadFile]);
 
-  const onDragOver = (e: DragEvent<HTMLDivElement>) => {
+    // Upload all files in a single request
+    uploadFiles(newItems.map(item => ({ id: item.id, file: item.file })));
+  }, [uploadFiles]);
+
+  const onDragOver = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
-  const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
+  const onDragLeave = (e: DragEvent<HTMLElement>) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
   };
-  const onDrop = (e: DragEvent<HTMLDivElement>) => {
+  const onDrop = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     setIsDragging(false);
     addFiles(e.dataTransfer.files);
@@ -122,7 +261,7 @@ const FileUploadComponent: React.FC = () => {
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
           </svg>
@@ -163,17 +302,17 @@ const FileUploadComponent: React.FC = () => {
             padding: '9px 0',
             border: '1px dashed var(--border-strong)',
             borderRadius: 'var(--radius-md)',
-            background: isDragging ? 'var(--accent-muted)' : 'transparent',
-            color: isDragging ? 'var(--accent-hover)' : 'var(--text-tertiary)',
+            background: isDragging ? 'var(--bg-elevated)' : 'transparent',
+            color: isDragging ? 'var(--text-primary)' : 'var(--text-tertiary)',
             fontSize: '13px',
             fontWeight: 500,
             cursor: 'pointer',
             transition: 'all 0.15s ease',
             fontFamily: 'inherit',
           }}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
+          onDragOver={onDragOver as unknown as React.DragEventHandler<HTMLButtonElement>}
+          onDragLeave={onDragLeave as unknown as React.DragEventHandler<HTMLButtonElement>}
+          onDrop={onDrop as unknown as React.DragEventHandler<HTMLButtonElement>}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
@@ -244,13 +383,13 @@ const FileUploadComponent: React.FC = () => {
                 width: '28px',
                 height: '28px',
                 borderRadius: 'var(--radius-sm)',
-                background: 'var(--accent-muted)',
+                background: 'var(--bg-elevated)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
                 </svg>
@@ -286,28 +425,21 @@ const FileUploadComponent: React.FC = () => {
                       {item.progress}%
                     </span>
                   )}
-                  {item.status === 'success' && (
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: 500,
-                      color: 'var(--success)',
-                      background: 'var(--success-muted)',
-                      padding: '1px 6px',
-                      borderRadius: '10px',
-                    }}>
-                      Ready
-                    </span>
-                  )}
-                  {item.status === 'error' && (
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: 500,
-                      color: 'var(--error)',
-                      padding: '1px 6px',
-                    }}>
-                      Error
-                    </span>
-                  )}
+                  {item.status !== 'uploading' && (() => {
+                    const badge = getStatusBadge(item.documentStatus, item.status);
+                    return (
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: 500,
+                        color: badge.color,
+                        background: badge.bg,
+                        padding: '1px 6px',
+                        borderRadius: '10px',
+                      }}>
+                        {badge.text}
+                      </span>
+                    );
+                  })()}
                 </div>
                 {/* Progress bar */}
                 {item.status === 'uploading' && (

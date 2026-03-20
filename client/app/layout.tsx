@@ -4,6 +4,10 @@ import { dark, neobrutalism } from '@clerk/ui/themes'
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import ThemeProvider from "@/components/ui/theme_provider";
+import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/components/Providers";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,15 +26,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(inter.variable, "font-sans")} suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
-        <ClerkProvider appearance={{
-          theme: dark,
-          signIn: { theme: neobrutalism },
-        }}>
-          {children}
-        </ClerkProvider>
-      </body>
-    </html >
+    <ClerkProvider appearance={{
+      theme: dark,
+      signIn: { theme: neobrutalism },
+    }}>
+      <html lang="en" className={cn(inter.variable, "font-sans")} suppressHydrationWarning>
+        <body className={`${inter.className} antialiased`}>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+            <ErrorBoundary>
+              <Providers>
+                {children}
+                <Toaster />
+              </Providers>
+            </ErrorBoundary>
+          </ThemeProvider>
+        </body>
+      </html >
+    </ClerkProvider>
   );
 }

@@ -25,6 +25,11 @@ export class ApiError extends Error {
 // ─────────────────────────────────────────
 
 const standardizeError = (err) => {
+  // Log the raw error for debugging in development
+  if (process.env.NODE_ENV === 'development' && err) {
+    console.error('[DEBUG] Raw error:', err)
+  }
+
   // Already an ApiError — return as is
   if (err instanceof ApiError) return err
 
@@ -131,11 +136,15 @@ const standardizeError = (err) => {
   }
 
   // ── Fallback ──
+  // Handle cases where err might not be a standard Error object
+  const statusCode = err?.statusCode || err?.status || 500
+  const message = err?.message || String(err) || 'An unexpected error occurred'
+
   return new ApiError(
-    err.statusCode || err.status || 500,
-    err.message || 'An unexpected error occurred',
+    statusCode,
+    message,
     [],
-    process.env.NODE_ENV === 'development' ? err.stack : ''
+    process.env.NODE_ENV === 'development' ? err?.stack : ''
   )
 }
 

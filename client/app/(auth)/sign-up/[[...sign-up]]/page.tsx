@@ -93,8 +93,6 @@ export default function SignUpPage() {
         routing="path"
         path="/sign-up"
         signInUrl="/sign-in"
-        afterSignUpUrl="/notebooks/1"
-        redirectUrl="/notebooks/1"
       />
     </div>
   );

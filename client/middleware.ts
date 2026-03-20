@@ -5,9 +5,23 @@ const isProtectedRoute = createRouteMatcher([
   '/settings(.*)',
 ])
 
+const isAuthRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+])
+
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    await auth.protect()
+  const { userId, redirectToSignIn } = await auth()
+
+  // If user is signed in and trying to access auth routes, redirect to dashboard
+  if (userId && isAuthRoute(req)) {
+    const dashboardUrl = new URL('/notebooks', req.url)
+    return Response.redirect(dashboardUrl)
+  }
+
+  // If user is not signed in and trying to access protected routes, redirect to sign-in
+  if (!userId && isProtectedRoute(req)) {
+    return redirectToSignIn({ returnBackUrl: req.url })
   }
 })
 

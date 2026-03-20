@@ -3,6 +3,11 @@
 import React, { useState, useRef, useEffect, FormEvent } from 'react';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
+import { useAuth } from '@clerk/nextjs';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Message {
@@ -311,6 +316,9 @@ const ChatComponent: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { getToken } = useAuth();
+  const params = useParams();
+  const notebookId = params.notebookId as string;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -341,17 +349,82 @@ const ChatComponent: React.FC = () => {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:8000/chat', { message: trimmed });
+      // Get Clerk JWT token
+      const token = await getToken();
 
-      const assistantMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.reply,
-        sources: data.sources,
-        timestamp: new Date(),
-      };
+      // Use the new authenticated chat API with SSE streaming
+      const response = await fetch(`${API_BASE_URL}/api/chat/${notebookId}/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ message: trimmed }),
+      });
 
-      setMessages(prev => [...prev, assistantMsg]);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+
+      // Handle SSE stream
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+      let sources: Source[] = [];
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+
+                if (data.type === 'token') {
+                  fullContent += data.content;
+                  // Update message in real-time
+                  setMessages(prev => {
+                    const lastMsg = prev[prev.length - 1];
+                    if (lastMsg?.role === 'assistant' && lastMsg.id === 'streaming') {
+                      return [...prev.slice(0, -1), { ...lastMsg, content: fullContent }];
+                    }
+                    return [...prev, {
+                      id: 'streaming',
+                      role: 'assistant',
+                      content: fullContent,
+                      timestamp: new Date(),
+                    }];
+                  });
+                } else if (data.type === 'sources') {
+                  sources = data.sources;
+                } else if (data.type === 'done') {
+                  // Finalize message
+                  setMessages(prev => {
+                    const filtered = prev.filter(m => m.id !== 'streaming');
+                    return [...filtered, {
+                      id: (Date.now() + 1).toString(),
+                      role: 'assistant',
+                      content: fullContent,
+                      sources,
+                      timestamp: new Date(),
+                    }];
+                  });
+                } else if (data.type === 'error') {
+                  throw new Error(data.message);
+                }
+              } catch (parseErr) {
+                // Ignore parse errors for incomplete chunks
+              }
+            }
+          }
+        }
+      }
     } catch (err) {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -359,6 +432,7 @@ const ChatComponent: React.FC = () => {
         content: `Something went wrong. ${err instanceof Error ? err.message : 'Please try again.'}`,
         timestamp: new Date(),
       };
+      toast.error('Chat Error', { description: err instanceof Error ? err.message : 'Please try again.' });
       setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsLoading(false);

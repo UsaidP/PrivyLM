@@ -8,7 +8,7 @@
 export const EMBED_CONFIG = {
   // API endpoint for embeddings
   API_URL: process.env.EMBED_API_URL || "https://kimbery-grippier-renownedly.ngrok-free.dev/api/embed",
-
+  // https://kimbery-grippier-renownedly.ngrok-free.dev/api/embed
   // Model identifier
   MODEL: process.env.EMBED_MODEL || "nomic-embed-perplexity-ai/pplx-embed-v1-0.6b",
 

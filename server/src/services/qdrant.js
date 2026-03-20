@@ -2,7 +2,15 @@ import { QdrantClient } from "@qdrant/js-client-rest";
 import { randomUUID } from "crypto";
 import { EMBED_CONFIG, getCollectionConfig, validateVectorDimension } from "../config/vector-config.js";
 
-const client = new QdrantClient({ url: 'http://localhost:6333' });
+const client = new QdrantClient({ url: process.env.QDRANT_URL || 'http://localhost:6333' });
+
+/**
+ * Generate collection name for per-notebook isolation
+ * Format: user_{userId}_notebook_{notebookId}
+ */
+export const getCollectionName = (userId, notebookId) => {
+  return `user_${userId}_notebook_${notebookId}`;
+};
 
 export const ensureCollection = async (COLLECTION, vectorSize) => {
   try {
@@ -37,14 +45,20 @@ export const ensureCollection = async (COLLECTION, vectorSize) => {
   }
 };
 
-export const upsertVectors = async (COLLECTION, vectors, batch, batchNum, totalBatches) => {
-
+/**
+ * Upsert vectors with userId and documentId in payload
+ */
+export const upsertVectors = async (COLLECTION, vectors, batch, batchNum, totalBatches, userId, documentId) => {
   const points = vectors.map((vec, idx) => ({
     id: randomUUID(),
     vector: vec,
     payload: {
       pageContent: batch[idx].pageContent,
-      metadata: batch[idx].metadata,
+      metadata: {
+        ...batch[idx].metadata,
+        userId,        // Add userId for tenant isolation
+        documentId,    // Add documentId for tracking
+      },
     },
   }));
 
@@ -70,22 +84,66 @@ export const fileAlreadyIndexed = async (COLLECTION, fileId) => {
   }
 };
 
-export const searchVectors = async (COLLECTION, queryVector, limit = 5) => {
+/**
+ * Search vectors with optional filter for tenant/source isolation
+ * @param {string} COLLECTION - Collection name
+ * @param {number[]} queryVector - Query embedding
+ * @param {number} limit - Max results
+ * @param {object|null} filter - Optional Qdrant filter object
+ */
+export const searchVectors = async (COLLECTION, queryVector, limit = 5, filter = null) => {
   try {
     // Validate query vector dimension before searching
     if (queryVector && queryVector.length) {
       validateVectorDimension(queryVector.length);
     }
 
-    const result = await client.search(COLLECTION, {
+    const searchParams = {
       vector: queryVector,
       limit: limit,
       with_payload: true,
       with_vector: false,
-    });
+    };
+
+    // Apply filter if provided
+    if (filter) {
+      searchParams.filter = filter;
+    }
+
+    const result = await client.search(COLLECTION, searchParams);
     return result;
   } catch (error) {
     console.error(`Error searching vectors in ${COLLECTION}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Delete all vectors for a document
+ */
+export const deleteDocumentVectors = async (COLLECTION, documentId) => {
+  try {
+    await client.delete(COLLECTION, {
+      filter: {
+        must: [{ key: "metadata.documentId", match: { value: documentId } }]
+      }
+    });
+    console.log(`✓ Deleted vectors for document ${documentId} from ${COLLECTION}`);
+  } catch (error) {
+    console.error(`Error deleting document vectors:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Delete entire collection (for notebook deletion)
+ */
+export const deleteCollection = async (COLLECTION) => {
+  try {
+    await client.deleteCollection(COLLECTION);
+    console.log(`✓ Deleted collection ${COLLECTION}`);
+  } catch (error) {
+    console.error(`Error deleting collection:`, error);
     throw error;
   }
 };

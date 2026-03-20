@@ -1,5 +1,6 @@
 'use client';
 
+import ThemeToggle from '@/components/ui/theme-toggle';
 import Link from 'next/link';
 
 const DOCS = [
@@ -76,19 +77,35 @@ const PLANS = [
 const CITATIONS = ['Clinical_Trial · p.23', 'Clinical_Trial · p.31', 'Research_Report · p.8'];
 
 // ── Reusable style tokens ─────────────────────────────────────────────────
+// These tokens are hardcoded for consistent landing page branding
+// Rewritten to match the 5-stop gray monochromatic palette
 const token = {
-  ink: '#0a0a0f',
-  ink2: '#2a2a35',
-  ink3: '#5a5a70',
-  ink4: '#9898a8',
-  paper: '#f8f7f4',
-  paper2: '#f0efe9',
-  border: 'rgba(10,10,15,0.1)',
-  teal: '#0d6e5a',
-  teal2: '#1a9e80',
-  tealBg: 'rgba(13,110,90,0.05)',
-  tealBorder: 'rgba(13,110,90,0.2)',
-  gold: '#c9a84c',
+  // Primary dark color - used for text and dark sections
+  ink: '#bfc3c4',
+  ink2: '#a7a7aa',
+  ink3: '#8e9095',
+  ink4: '#6f7176',
+  // Light/paper colors
+  paper: '#4e5155',
+  paper2: '#6f7176',
+  // Border color
+  border: '#6f7176',
+  // Accent colors
+  teal: '#bfc3c4',
+  teal2: '#bfc3c4',
+  tealBg: 'rgba(191,195,196,0.1)',
+  tealBorder: 'rgba(191,195,196,0.25)',
+  gold: '#a7a7aa',
+};
+
+// Dark section tokens (for Architecture, CTA sections)
+const darkSection = {
+  bg: '#4e5155',
+  text: '#bfc3c4',
+  textMuted: '#a7a7aa',
+  textSubtle: '#8e9095',
+  border: '#6f7176',
+  cardBg: 'rgba(111,113,118,0.2)',
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────
@@ -211,6 +228,7 @@ export default function LandingPage() {
           }}>
             Get started →
           </Link>
+
         </div>
       </nav>
 
@@ -373,31 +391,31 @@ export default function LandingPage() {
       </section>
 
       {/* ── Architecture ── */}
-      <section id="architecture" style={{ background: token.ink, margin: 0, padding: '80px 48px' }}>
+      <section id="architecture" style={{ background: darkSection.bg, margin: 0, padding: '80px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '2px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 16 }}>
+          <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '2px', color: darkSection.textSubtle, textTransform: 'uppercase', marginBottom: 16 }}>
             Architecture
           </div>
-          <h2 style={{ fontSize: 42, lineHeight: 1.1, color: '#fff', marginBottom: 16, fontWeight: 400 }}>
+          <h2 style={{ fontSize: 42, lineHeight: 1.1, color: darkSection.text, marginBottom: 16, fontWeight: 400 }}>
             How <em style={{ color: token.teal2, fontStyle: 'italic' }}>PrivyLM</em> works
           </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 520, marginBottom: 56 }}>
+          <p style={{ fontSize: 15, color: darkSection.textMuted, lineHeight: 1.7, maxWidth: 520, marginBottom: 56 }}>
             A hardened, multi-tenant stack — every layer enforces isolation.
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {ARCH_CARDS.map((card) => (
               <div key={card.name} style={{
-                border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20,
-                background: 'rgba(255,255,255,0.03)', transition: 'all 0.2s',
+                border: `1px solid ${darkSection.border}`, borderRadius: 12, padding: 20,
+                background: darkSection.cardBg, transition: 'all 0.2s',
               }}>
                 <div style={{ fontFamily: 'monospace', fontSize: 9, letterSpacing: '1.5px', textTransform: 'uppercase', color: token.teal2, marginBottom: 12 }}>
                   {card.layer}
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 6 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: darkSection.text, marginBottom: 6 }}>
                   {card.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
+                <div style={{ fontSize: 12, color: darkSection.textMuted, lineHeight: 1.6 }}>
                   {card.desc}
                 </div>
                 <span style={{
@@ -415,16 +433,16 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginTop: 40, overflowX: 'auto', paddingBottom: 4 }}>
             {PIPELINE_STEPS.map((step, idx) => (
               <div key={step.num} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px 16px', textAlign: 'center', minWidth: 100 }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>
+                <div style={{ background: darkSection.cardBg, border: `1px solid ${darkSection.border}`, borderRadius: 8, padding: '12px 16px', textAlign: 'center', minWidth: 100 }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: 9, color: darkSection.textSubtle, marginBottom: 4 }}>
                     {step.num}
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: darkSection.textMuted }}>
                     {step.name}
                   </div>
                 </div>
                 {idx < PIPELINE_STEPS.length - 1 && (
-                  <span style={{ padding: '0 8px', color: 'rgba(255,255,255,0.2)', fontSize: 18, flexShrink: 0 }}>→</span>
+                  <span style={{ padding: '0 8px', color: darkSection.border, fontSize: 18, flexShrink: 0 }}>→</span>
                 )}
               </div>
             ))}
@@ -488,8 +506,8 @@ export default function LandingPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
           {PLANS.map((plan) => (
             <div key={plan.name} style={{
-              border: `1px solid ${token.border}`, borderRadius: 16, padding: 28,
-              background: plan.featured ? token.ink : token.paper,
+              border: `1px solid ${plan.featured ? darkSection.border : token.border}`, borderRadius: 16, padding: 28,
+              background: plan.featured ? darkSection.bg : token.paper,
               transition: 'all 0.2s', position: 'relative',
             }}>
               {plan.featured && (
@@ -503,26 +521,26 @@ export default function LandingPage() {
               )}
               <div style={{
                 fontSize: 13, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase',
-                marginBottom: 8, color: plan.featured ? 'rgba(255,255,255,0.5)' : token.ink3,
+                marginBottom: 8, color: plan.featured ? darkSection.textSubtle : token.ink3,
               }}>
                 {plan.name}
               </div>
               <div style={{
                 fontFamily: 'Instrument Serif, serif', fontSize: plan.price === 'Custom' ? 32 : 44,
-                color: plan.featured ? '#fff' : token.ink, lineHeight: 1, marginBottom: 6, fontWeight: 400, paddingTop: plan.price === 'Custom' ? 6 : 0,
+                color: plan.featured ? darkSection.text : token.ink, lineHeight: 1, marginBottom: 6, fontWeight: 400, paddingTop: plan.price === 'Custom' ? 6 : 0,
               }}>
                 {plan.price !== 'Custom' && <sup style={{ fontSize: 20, fontFamily: 'Syne, sans-serif', verticalAlign: 'super' }}>$</sup>}
                 {plan.price}
-                {plan.period && <sub style={{ fontSize: 14, fontFamily: 'Syne, sans-serif', color: plan.featured ? 'rgba(255,255,255,0.3)' : token.ink4, fontWeight: 400 }}>{plan.period}</sub>}
+                {plan.period && <sub style={{ fontSize: 14, fontFamily: 'Syne, sans-serif', color: plan.featured ? darkSection.textSubtle : token.ink4, fontWeight: 400 }}>{plan.period}</sub>}
               </div>
               <div style={{
-                fontSize: 13, color: plan.featured ? 'rgba(255,255,255,0.45)' : token.ink3,
+                fontSize: 13, color: plan.featured ? darkSection.textMuted : token.ink3,
                 marginBottom: 24, lineHeight: 1.5,
               }}>
                 {plan.desc}
               </div>
               <div style={{
-                height: 1, background: plan.featured ? 'rgba(255,255,255,0.08)' : token.border,
+                height: 1, background: plan.featured ? darkSection.border : token.border,
                 marginBottom: 20,
               }} />
               <ul style={{
@@ -531,7 +549,7 @@ export default function LandingPage() {
               }}>
                 {plan.features.map((f) => (
                   <li key={f} style={{
-                    fontSize: 13, color: plan.featured ? 'rgba(255,255,255,0.6)' : token.ink3,
+                    fontSize: 13, color: plan.featured ? darkSection.textMuted : token.ink3,
                     display: 'flex', alignItems: 'center', gap: 8,
                   }}>
                     <span style={{
@@ -551,9 +569,9 @@ export default function LandingPage() {
                 width: '100%', display: 'block', textAlign: 'center',
                 fontSize: 13, fontWeight: 600, padding: 11, borderRadius: 8,
                 textDecoration: 'none', letterSpacing: '0.2px',
-                background: plan.ctaStyle === 'white' ? '#fff' : 'none',
-                color: plan.ctaStyle === 'white' ? token.ink : plan.featured ? 'rgba(255,255,255,0.7)' : token.ink,
-                border: plan.ctaStyle === 'white' ? 'none' : `1px solid ${plan.featured ? 'rgba(255,255,255,0.15)' : token.border}`,
+                background: plan.ctaStyle === 'white' ? darkSection.text : 'none',
+                color: plan.ctaStyle === 'white' ? token.ink : plan.featured ? darkSection.textMuted : token.ink,
+                border: plan.ctaStyle === 'white' ? 'none' : `1px solid ${plan.featured ? darkSection.border : token.border}`,
               }}>
                 {plan.cta}
               </Link>
@@ -565,32 +583,32 @@ export default function LandingPage() {
       {/* ── CTA ── */}
       <section style={{
         margin: 0, padding: '80px 48px',
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #0d1f1a 100%)',
+        background: `linear-gradient(135deg, ${darkSection.bg} 0%, #0d1f1a 100%)`,
         textAlign: 'center', position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 0%, rgba(26,158,128,0.12) 0%, transparent 60%)' }} />
         <div style={{ maxWidth: 600, margin: '0 auto', position: 'relative' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '2px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 16 }}>
+          <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '2px', color: darkSection.textSubtle, textTransform: 'uppercase', marginBottom: 16 }}>
             Get started
           </div>
-          <h2 style={{ fontSize: 48, color: '#fff', lineHeight: 1.1, marginBottom: 20, fontWeight: 400 }}>
+          <h2 style={{ fontSize: 48, color: darkSection.text, lineHeight: 1.1, marginBottom: 20, fontWeight: 400 }}>
             Research smarter.<br />
             <em style={{ color: token.teal2, fontStyle: 'italic' }}>Stay private.</em>
           </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, marginBottom: 36 }}>
+          <p style={{ fontSize: 15, color: darkSection.textMuted, lineHeight: 1.7, marginBottom: 36 }}>
             Join researchers who trust PrivyLM to keep their most sensitive work secure and searchable.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 14 }}>
             <Link href="/sign-up" style={{
               fontSize: 14, fontWeight: 600, padding: '13px 28px', borderRadius: 8,
-              background: '#fff', color: token.ink, textDecoration: 'none',
+              background: darkSection.text, color: token.ink, textDecoration: 'none',
             }}>
               Start for free →
             </Link>
             <Link href="/notebooks/demo" style={{
               fontSize: 14, fontWeight: 600, padding: '13px 28px', borderRadius: 8,
-              background: 'none', color: 'rgba(255,255,255,0.7)',
-              border: '1px solid rgba(255,255,255,0.15)', textDecoration: 'none',
+              background: 'none', color: darkSection.textMuted,
+              border: `1px solid ${darkSection.border}`, textDecoration: 'none',
             }}>
               Try demo ↗
             </Link>

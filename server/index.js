@@ -13,9 +13,36 @@ import { tool } from "@langchain/core/tools";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { z } from "zod";
 
+// Phase 1: Auth & Notebook imports
+import { requireAuth, extractUserId } from './src/middleware/auth.js';
+import { requireTenant } from './src/middleware/tenantScope.js';
+import notebookRoutes from './src/api/routes/notebook.js';
+
+// Phase 2: Document routes
+import documentRoutes from './src/api/routes/documents.js';
+
+// Phase 3: Chat routes
+import chatRoutes from './src/api/routes/chat.js';
 const app = express();
-app.use(cors());
+
+// CORS configuration - must allow credentials for Clerk JWT
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
+
 app.use(express.json());
+
+// ── Phase 1: Notebook API Routes (Protected) ─────────────────────────────────
+app.use('/api/notebooks', requireAuth, extractUserId, requireTenant, notebookRoutes);
+
+// ── Phase 2: Document API Routes (Protected) ─────────────────────────────────
+app.use('/api/documents', requireAuth, extractUserId, requireTenant, documentRoutes);
+
+// ── Phase 3: Chat API Routes (Protected) ─────────────────────────────────────
+app.use('/api/chat', requireAuth, extractUserId, requireTenant, chatRoutes);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -50,7 +77,7 @@ app.post("/upload/pdf", upload.array("pdf"), asyncHandler(async (req, res) => {
 }));
 
 // ── Search ───────────────────────────────────────────────────────────────────
-
+console.log("DEBUG ENV:", process.env.VECTOR_DIMENSION);
 logVectorConfig();
 
 app.post("/search", asyncHandler(async (req, res) => {

@@ -1262,13 +1262,13 @@ export namespace Prisma {
    */
 
   export type UserCountOutputType = {
-    notebooks: number
     chatSessions: number
+    notebooks: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    notebooks?: boolean | UserCountOutputTypeCountNotebooksArgs
     chatSessions?: boolean | UserCountOutputTypeCountChatSessionsArgs
+    notebooks?: boolean | UserCountOutputTypeCountNotebooksArgs
   }
 
   // Custom InputTypes
@@ -1285,15 +1285,15 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountNotebooksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NotebookWhereInput
+  export type UserCountOutputTypeCountChatSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChatSessionWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountChatSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChatSessionWhereInput
+  export type UserCountOutputTypeCountNotebooksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotebookWhereInput
   }
 
 
@@ -1302,13 +1302,13 @@ export namespace Prisma {
    */
 
   export type NotebookCountOutputType = {
-    documents: number
     chatSessions: number
+    documents: number
   }
 
   export type NotebookCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    documents?: boolean | NotebookCountOutputTypeCountDocumentsArgs
     chatSessions?: boolean | NotebookCountOutputTypeCountChatSessionsArgs
+    documents?: boolean | NotebookCountOutputTypeCountDocumentsArgs
   }
 
   // Custom InputTypes
@@ -1325,15 +1325,15 @@ export namespace Prisma {
   /**
    * NotebookCountOutputType without action
    */
-  export type NotebookCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DocumentWhereInput
+  export type NotebookCountOutputTypeCountChatSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ChatSessionWhereInput
   }
 
   /**
    * NotebookCountOutputType without action
    */
-  export type NotebookCountOutputTypeCountChatSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ChatSessionWhereInput
+  export type NotebookCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DocumentWhereInput
   }
 
 
@@ -1552,8 +1552,8 @@ export namespace Prisma {
     imageUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    notebooks?: boolean | User$notebooksArgs<ExtArgs>
     chatSessions?: boolean | User$chatSessionsArgs<ExtArgs>
+    notebooks?: boolean | User$notebooksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1589,8 +1589,8 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clerkUserId" | "email" | "name" | "imageUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    notebooks?: boolean | User$notebooksArgs<ExtArgs>
     chatSessions?: boolean | User$chatSessionsArgs<ExtArgs>
+    notebooks?: boolean | User$notebooksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1599,8 +1599,8 @@ export namespace Prisma {
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
-      notebooks: Prisma.$NotebookPayload<ExtArgs>[]
       chatSessions: Prisma.$ChatSessionPayload<ExtArgs>[]
+      notebooks: Prisma.$NotebookPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2004,8 +2004,8 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    notebooks<T extends User$notebooksArgs<ExtArgs> = {}>(args?: Subset<T, User$notebooksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotebookPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     chatSessions<T extends User$chatSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$chatSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notebooks<T extends User$notebooksArgs<ExtArgs> = {}>(args?: Subset<T, User$notebooksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotebookPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2435,30 +2435,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.notebooks
-   */
-  export type User$notebooksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Notebook
-     */
-    select?: NotebookSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Notebook
-     */
-    omit?: NotebookOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: NotebookInclude<ExtArgs> | null
-    where?: NotebookWhereInput
-    orderBy?: NotebookOrderByWithRelationInput | NotebookOrderByWithRelationInput[]
-    cursor?: NotebookWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: NotebookScalarFieldEnum | NotebookScalarFieldEnum[]
-  }
-
-  /**
    * User.chatSessions
    */
   export type User$chatSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2480,6 +2456,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ChatSessionScalarFieldEnum | ChatSessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.notebooks
+   */
+  export type User$notebooksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notebook
+     */
+    select?: NotebookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notebook
+     */
+    omit?: NotebookOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotebookInclude<ExtArgs> | null
+    where?: NotebookWhereInput
+    orderBy?: NotebookOrderByWithRelationInput | NotebookOrderByWithRelationInput[]
+    cursor?: NotebookWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotebookScalarFieldEnum | NotebookScalarFieldEnum[]
   }
 
   /**
@@ -2673,9 +2673,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     userId?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    documents?: boolean | Notebook$documentsArgs<ExtArgs>
     chatSessions?: boolean | Notebook$chatSessionsArgs<ExtArgs>
+    documents?: boolean | Notebook$documentsArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | NotebookCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["notebook"]>
 
@@ -2710,9 +2710,9 @@ export namespace Prisma {
 
   export type NotebookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["notebook"]>
   export type NotebookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    documents?: boolean | Notebook$documentsArgs<ExtArgs>
     chatSessions?: boolean | Notebook$chatSessionsArgs<ExtArgs>
+    documents?: boolean | Notebook$documentsArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | NotebookCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type NotebookIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2725,9 +2725,9 @@ export namespace Prisma {
   export type $NotebookPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Notebook"
     objects: {
-      user: Prisma.$UserPayload<ExtArgs>
-      documents: Prisma.$DocumentPayload<ExtArgs>[]
       chatSessions: Prisma.$ChatSessionPayload<ExtArgs>[]
+      documents: Prisma.$DocumentPayload<ExtArgs>[]
+      user: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3130,9 +3130,9 @@ export namespace Prisma {
    */
   export interface Prisma__NotebookClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    documents<T extends Notebook$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Notebook$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     chatSessions<T extends Notebook$chatSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Notebook$chatSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    documents<T extends Notebook$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Notebook$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3569,30 +3569,6 @@ export namespace Prisma {
   }
 
   /**
-   * Notebook.documents
-   */
-  export type Notebook$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Document
-     */
-    select?: DocumentSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Document
-     */
-    omit?: DocumentOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DocumentInclude<ExtArgs> | null
-    where?: DocumentWhereInput
-    orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
-    cursor?: DocumentWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DocumentScalarFieldEnum | DocumentScalarFieldEnum[]
-  }
-
-  /**
    * Notebook.chatSessions
    */
   export type Notebook$chatSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3614,6 +3590,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ChatSessionScalarFieldEnum | ChatSessionScalarFieldEnum[]
+  }
+
+  /**
+   * Notebook.documents
+   */
+  export type Notebook$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Document
+     */
+    select?: DocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Document
+     */
+    omit?: DocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentInclude<ExtArgs> | null
+    where?: DocumentWhereInput
+    orderBy?: DocumentOrderByWithRelationInput | DocumentOrderByWithRelationInput[]
+    cursor?: DocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DocumentScalarFieldEnum | DocumentScalarFieldEnum[]
   }
 
   /**
@@ -4973,9 +4973,9 @@ export namespace Prisma {
     updatedAt?: boolean
     userId?: boolean
     notebookId?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    notebook?: boolean | NotebookDefaultArgs<ExtArgs>
     messages?: boolean | ChatSession$messagesArgs<ExtArgs>
+    notebook?: boolean | NotebookDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ChatSessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chatSession"]>
 
@@ -4986,8 +4986,8 @@ export namespace Prisma {
     updatedAt?: boolean
     userId?: boolean
     notebookId?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
     notebook?: boolean | NotebookDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chatSession"]>
 
   export type ChatSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4997,8 +4997,8 @@ export namespace Prisma {
     updatedAt?: boolean
     userId?: boolean
     notebookId?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
     notebook?: boolean | NotebookDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chatSession"]>
 
   export type ChatSessionSelectScalar = {
@@ -5012,26 +5012,26 @@ export namespace Prisma {
 
   export type ChatSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "createdAt" | "updatedAt" | "userId" | "notebookId", ExtArgs["result"]["chatSession"]>
   export type ChatSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
-    notebook?: boolean | NotebookDefaultArgs<ExtArgs>
     messages?: boolean | ChatSession$messagesArgs<ExtArgs>
+    notebook?: boolean | NotebookDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ChatSessionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ChatSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
     notebook?: boolean | NotebookDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type ChatSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
     notebook?: boolean | NotebookDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }
 
   export type $ChatSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ChatSession"
     objects: {
-      user: Prisma.$UserPayload<ExtArgs>
-      notebook: Prisma.$NotebookPayload<ExtArgs>
       messages: Prisma.$ChatMessagePayload<ExtArgs>[]
+      notebook: Prisma.$NotebookPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5434,9 +5434,9 @@ export namespace Prisma {
    */
   export interface Prisma__ChatSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    notebook<T extends NotebookDefaultArgs<ExtArgs> = {}>(args?: Subset<T, NotebookDefaultArgs<ExtArgs>>): Prisma__NotebookClient<$Result.GetResult<Prisma.$NotebookPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     messages<T extends ChatSession$messagesArgs<ExtArgs> = {}>(args?: Subset<T, ChatSession$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notebook<T extends NotebookDefaultArgs<ExtArgs> = {}>(args?: Subset<T, NotebookDefaultArgs<ExtArgs>>): Prisma__NotebookClient<$Result.GetResult<Prisma.$NotebookPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7224,8 +7224,8 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    notebooks?: NotebookListRelationFilter
     chatSessions?: ChatSessionListRelationFilter
+    notebooks?: NotebookListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7236,8 +7236,8 @@ export namespace Prisma {
     imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    notebooks?: NotebookOrderByRelationAggregateInput
     chatSessions?: ChatSessionOrderByRelationAggregateInput
+    notebooks?: NotebookOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7251,8 +7251,8 @@ export namespace Prisma {
     imageUrl?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    notebooks?: NotebookListRelationFilter
     chatSessions?: ChatSessionListRelationFilter
+    notebooks?: NotebookListRelationFilter
   }, "id" | "clerkUserId" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -7291,9 +7291,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Notebook"> | Date | string
     updatedAt?: DateTimeFilter<"Notebook"> | Date | string
     userId?: StringFilter<"Notebook"> | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    documents?: DocumentListRelationFilter
     chatSessions?: ChatSessionListRelationFilter
+    documents?: DocumentListRelationFilter
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type NotebookOrderByWithRelationInput = {
@@ -7303,9 +7303,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     userId?: SortOrder
-    user?: UserOrderByWithRelationInput
-    documents?: DocumentOrderByRelationAggregateInput
     chatSessions?: ChatSessionOrderByRelationAggregateInput
+    documents?: DocumentOrderByRelationAggregateInput
+    user?: UserOrderByWithRelationInput
   }
 
   export type NotebookWhereUniqueInput = Prisma.AtLeast<{
@@ -7318,9 +7318,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Notebook"> | Date | string
     updatedAt?: DateTimeFilter<"Notebook"> | Date | string
     userId?: StringFilter<"Notebook"> | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    documents?: DocumentListRelationFilter
     chatSessions?: ChatSessionListRelationFilter
+    documents?: DocumentListRelationFilter
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type NotebookOrderByWithAggregationInput = {
@@ -7439,9 +7439,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"ChatSession"> | Date | string
     userId?: StringFilter<"ChatSession"> | string
     notebookId?: StringFilter<"ChatSession"> | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    notebook?: XOR<NotebookScalarRelationFilter, NotebookWhereInput>
     messages?: ChatMessageListRelationFilter
+    notebook?: XOR<NotebookScalarRelationFilter, NotebookWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type ChatSessionOrderByWithRelationInput = {
@@ -7451,9 +7451,9 @@ export namespace Prisma {
     updatedAt?: SortOrder
     userId?: SortOrder
     notebookId?: SortOrder
-    user?: UserOrderByWithRelationInput
-    notebook?: NotebookOrderByWithRelationInput
     messages?: ChatMessageOrderByRelationAggregateInput
+    notebook?: NotebookOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
   }
 
   export type ChatSessionWhereUniqueInput = Prisma.AtLeast<{
@@ -7466,9 +7466,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"ChatSession"> | Date | string
     userId?: StringFilter<"ChatSession"> | string
     notebookId?: StringFilter<"ChatSession"> | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    notebook?: XOR<NotebookScalarRelationFilter, NotebookWhereInput>
     messages?: ChatMessageListRelationFilter
+    notebook?: XOR<NotebookScalarRelationFilter, NotebookWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type ChatSessionOrderByWithAggregationInput = {
@@ -7563,8 +7563,8 @@ export namespace Prisma {
     imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    notebooks?: NotebookCreateNestedManyWithoutUserInput
     chatSessions?: ChatSessionCreateNestedManyWithoutUserInput
+    notebooks?: NotebookCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -7575,8 +7575,8 @@ export namespace Prisma {
     imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    notebooks?: NotebookUncheckedCreateNestedManyWithoutUserInput
     chatSessions?: ChatSessionUncheckedCreateNestedManyWithoutUserInput
+    notebooks?: NotebookUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -7587,8 +7587,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    notebooks?: NotebookUpdateManyWithoutUserNestedInput
     chatSessions?: ChatSessionUpdateManyWithoutUserNestedInput
+    notebooks?: NotebookUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -7599,8 +7599,8 @@ export namespace Prisma {
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    notebooks?: NotebookUncheckedUpdateManyWithoutUserNestedInput
     chatSessions?: ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+    notebooks?: NotebookUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -7639,9 +7639,9 @@ export namespace Prisma {
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutNotebooksInput
-    documents?: DocumentCreateNestedManyWithoutNotebookInput
     chatSessions?: ChatSessionCreateNestedManyWithoutNotebookInput
+    documents?: DocumentCreateNestedManyWithoutNotebookInput
+    user: UserCreateNestedOneWithoutNotebooksInput
   }
 
   export type NotebookUncheckedCreateInput = {
@@ -7651,8 +7651,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     userId: string
-    documents?: DocumentUncheckedCreateNestedManyWithoutNotebookInput
     chatSessions?: ChatSessionUncheckedCreateNestedManyWithoutNotebookInput
+    documents?: DocumentUncheckedCreateNestedManyWithoutNotebookInput
   }
 
   export type NotebookUpdateInput = {
@@ -7661,9 +7661,9 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutNotebooksNestedInput
-    documents?: DocumentUpdateManyWithoutNotebookNestedInput
     chatSessions?: ChatSessionUpdateManyWithoutNotebookNestedInput
+    documents?: DocumentUpdateManyWithoutNotebookNestedInput
+    user?: UserUpdateOneRequiredWithoutNotebooksNestedInput
   }
 
   export type NotebookUncheckedUpdateInput = {
@@ -7673,8 +7673,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
-    documents?: DocumentUncheckedUpdateManyWithoutNotebookNestedInput
     chatSessions?: ChatSessionUncheckedUpdateManyWithoutNotebookNestedInput
+    documents?: DocumentUncheckedUpdateManyWithoutNotebookNestedInput
   }
 
   export type NotebookCreateManyInput = {
@@ -7798,9 +7798,9 @@ export namespace Prisma {
     title?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutChatSessionsInput
-    notebook: NotebookCreateNestedOneWithoutChatSessionsInput
     messages?: ChatMessageCreateNestedManyWithoutSessionInput
+    notebook: NotebookCreateNestedOneWithoutChatSessionsInput
+    user: UserCreateNestedOneWithoutChatSessionsInput
   }
 
   export type ChatSessionUncheckedCreateInput = {
@@ -7818,9 +7818,9 @@ export namespace Prisma {
     title?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
-    notebook?: NotebookUpdateOneRequiredWithoutChatSessionsNestedInput
     messages?: ChatMessageUpdateManyWithoutSessionNestedInput
+    notebook?: NotebookUpdateOneRequiredWithoutChatSessionsNestedInput
+    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
   }
 
   export type ChatSessionUncheckedUpdateInput = {
@@ -7961,16 +7961,16 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type NotebookListRelationFilter = {
-    every?: NotebookWhereInput
-    some?: NotebookWhereInput
-    none?: NotebookWhereInput
-  }
-
   export type ChatSessionListRelationFilter = {
     every?: ChatSessionWhereInput
     some?: ChatSessionWhereInput
     none?: ChatSessionWhereInput
+  }
+
+  export type NotebookListRelationFilter = {
+    every?: NotebookWhereInput
+    some?: NotebookWhereInput
+    none?: NotebookWhereInput
   }
 
   export type SortOrderInput = {
@@ -7978,11 +7978,11 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
-  export type NotebookOrderByRelationAggregateInput = {
+  export type ChatSessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ChatSessionOrderByRelationAggregateInput = {
+  export type NotebookOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -8066,15 +8066,15 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
-  }
-
   export type DocumentListRelationFilter = {
     every?: DocumentWhereInput
     some?: DocumentWhereInput
     none?: DocumentWhereInput
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
   }
 
   export type DocumentOrderByRelationAggregateInput = {
@@ -8339,13 +8339,6 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
-  export type NotebookCreateNestedManyWithoutUserInput = {
-    create?: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput> | NotebookCreateWithoutUserInput[] | NotebookUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: NotebookCreateOrConnectWithoutUserInput | NotebookCreateOrConnectWithoutUserInput[]
-    createMany?: NotebookCreateManyUserInputEnvelope
-    connect?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
-  }
-
   export type ChatSessionCreateNestedManyWithoutUserInput = {
     create?: XOR<ChatSessionCreateWithoutUserInput, ChatSessionUncheckedCreateWithoutUserInput> | ChatSessionCreateWithoutUserInput[] | ChatSessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ChatSessionCreateOrConnectWithoutUserInput | ChatSessionCreateOrConnectWithoutUserInput[]
@@ -8353,7 +8346,7 @@ export namespace Prisma {
     connect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
   }
 
-  export type NotebookUncheckedCreateNestedManyWithoutUserInput = {
+  export type NotebookCreateNestedManyWithoutUserInput = {
     create?: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput> | NotebookCreateWithoutUserInput[] | NotebookUncheckedCreateWithoutUserInput[]
     connectOrCreate?: NotebookCreateOrConnectWithoutUserInput | NotebookCreateOrConnectWithoutUserInput[]
     createMany?: NotebookCreateManyUserInputEnvelope
@@ -8367,6 +8360,13 @@ export namespace Prisma {
     connect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
   }
 
+  export type NotebookUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput> | NotebookCreateWithoutUserInput[] | NotebookUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotebookCreateOrConnectWithoutUserInput | NotebookCreateOrConnectWithoutUserInput[]
+    createMany?: NotebookCreateManyUserInputEnvelope
+    connect?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -8377,20 +8377,6 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
-  }
-
-  export type NotebookUpdateManyWithoutUserNestedInput = {
-    create?: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput> | NotebookCreateWithoutUserInput[] | NotebookUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: NotebookCreateOrConnectWithoutUserInput | NotebookCreateOrConnectWithoutUserInput[]
-    upsert?: NotebookUpsertWithWhereUniqueWithoutUserInput | NotebookUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: NotebookCreateManyUserInputEnvelope
-    set?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
-    disconnect?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
-    delete?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
-    connect?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
-    update?: NotebookUpdateWithWhereUniqueWithoutUserInput | NotebookUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: NotebookUpdateManyWithWhereWithoutUserInput | NotebookUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: NotebookScalarWhereInput | NotebookScalarWhereInput[]
   }
 
   export type ChatSessionUpdateManyWithoutUserNestedInput = {
@@ -8407,7 +8393,7 @@ export namespace Prisma {
     deleteMany?: ChatSessionScalarWhereInput | ChatSessionScalarWhereInput[]
   }
 
-  export type NotebookUncheckedUpdateManyWithoutUserNestedInput = {
+  export type NotebookUpdateManyWithoutUserNestedInput = {
     create?: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput> | NotebookCreateWithoutUserInput[] | NotebookUncheckedCreateWithoutUserInput[]
     connectOrCreate?: NotebookCreateOrConnectWithoutUserInput | NotebookCreateOrConnectWithoutUserInput[]
     upsert?: NotebookUpsertWithWhereUniqueWithoutUserInput | NotebookUpsertWithWhereUniqueWithoutUserInput[]
@@ -8435,10 +8421,25 @@ export namespace Prisma {
     deleteMany?: ChatSessionScalarWhereInput | ChatSessionScalarWhereInput[]
   }
 
-  export type UserCreateNestedOneWithoutNotebooksInput = {
-    create?: XOR<UserCreateWithoutNotebooksInput, UserUncheckedCreateWithoutNotebooksInput>
-    connectOrCreate?: UserCreateOrConnectWithoutNotebooksInput
-    connect?: UserWhereUniqueInput
+  export type NotebookUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput> | NotebookCreateWithoutUserInput[] | NotebookUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotebookCreateOrConnectWithoutUserInput | NotebookCreateOrConnectWithoutUserInput[]
+    upsert?: NotebookUpsertWithWhereUniqueWithoutUserInput | NotebookUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotebookCreateManyUserInputEnvelope
+    set?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
+    disconnect?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
+    delete?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
+    connect?: NotebookWhereUniqueInput | NotebookWhereUniqueInput[]
+    update?: NotebookUpdateWithWhereUniqueWithoutUserInput | NotebookUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotebookUpdateManyWithWhereWithoutUserInput | NotebookUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotebookScalarWhereInput | NotebookScalarWhereInput[]
+  }
+
+  export type ChatSessionCreateNestedManyWithoutNotebookInput = {
+    create?: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput> | ChatSessionCreateWithoutNotebookInput[] | ChatSessionUncheckedCreateWithoutNotebookInput[]
+    connectOrCreate?: ChatSessionCreateOrConnectWithoutNotebookInput | ChatSessionCreateOrConnectWithoutNotebookInput[]
+    createMany?: ChatSessionCreateManyNotebookInputEnvelope
+    connect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
   }
 
   export type DocumentCreateNestedManyWithoutNotebookInput = {
@@ -8448,7 +8449,13 @@ export namespace Prisma {
     connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
   }
 
-  export type ChatSessionCreateNestedManyWithoutNotebookInput = {
+  export type UserCreateNestedOneWithoutNotebooksInput = {
+    create?: XOR<UserCreateWithoutNotebooksInput, UserUncheckedCreateWithoutNotebooksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotebooksInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ChatSessionUncheckedCreateNestedManyWithoutNotebookInput = {
     create?: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput> | ChatSessionCreateWithoutNotebookInput[] | ChatSessionUncheckedCreateWithoutNotebookInput[]
     connectOrCreate?: ChatSessionCreateOrConnectWithoutNotebookInput | ChatSessionCreateOrConnectWithoutNotebookInput[]
     createMany?: ChatSessionCreateManyNotebookInputEnvelope
@@ -8462,19 +8469,18 @@ export namespace Prisma {
     connect?: DocumentWhereUniqueInput | DocumentWhereUniqueInput[]
   }
 
-  export type ChatSessionUncheckedCreateNestedManyWithoutNotebookInput = {
+  export type ChatSessionUpdateManyWithoutNotebookNestedInput = {
     create?: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput> | ChatSessionCreateWithoutNotebookInput[] | ChatSessionUncheckedCreateWithoutNotebookInput[]
     connectOrCreate?: ChatSessionCreateOrConnectWithoutNotebookInput | ChatSessionCreateOrConnectWithoutNotebookInput[]
+    upsert?: ChatSessionUpsertWithWhereUniqueWithoutNotebookInput | ChatSessionUpsertWithWhereUniqueWithoutNotebookInput[]
     createMany?: ChatSessionCreateManyNotebookInputEnvelope
+    set?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
+    disconnect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
+    delete?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
     connect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
-  }
-
-  export type UserUpdateOneRequiredWithoutNotebooksNestedInput = {
-    create?: XOR<UserCreateWithoutNotebooksInput, UserUncheckedCreateWithoutNotebooksInput>
-    connectOrCreate?: UserCreateOrConnectWithoutNotebooksInput
-    upsert?: UserUpsertWithoutNotebooksInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotebooksInput, UserUpdateWithoutNotebooksInput>, UserUncheckedUpdateWithoutNotebooksInput>
+    update?: ChatSessionUpdateWithWhereUniqueWithoutNotebookInput | ChatSessionUpdateWithWhereUniqueWithoutNotebookInput[]
+    updateMany?: ChatSessionUpdateManyWithWhereWithoutNotebookInput | ChatSessionUpdateManyWithWhereWithoutNotebookInput[]
+    deleteMany?: ChatSessionScalarWhereInput | ChatSessionScalarWhereInput[]
   }
 
   export type DocumentUpdateManyWithoutNotebookNestedInput = {
@@ -8491,7 +8497,15 @@ export namespace Prisma {
     deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
   }
 
-  export type ChatSessionUpdateManyWithoutNotebookNestedInput = {
+  export type UserUpdateOneRequiredWithoutNotebooksNestedInput = {
+    create?: XOR<UserCreateWithoutNotebooksInput, UserUncheckedCreateWithoutNotebooksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotebooksInput
+    upsert?: UserUpsertWithoutNotebooksInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotebooksInput, UserUpdateWithoutNotebooksInput>, UserUncheckedUpdateWithoutNotebooksInput>
+  }
+
+  export type ChatSessionUncheckedUpdateManyWithoutNotebookNestedInput = {
     create?: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput> | ChatSessionCreateWithoutNotebookInput[] | ChatSessionUncheckedCreateWithoutNotebookInput[]
     connectOrCreate?: ChatSessionCreateOrConnectWithoutNotebookInput | ChatSessionCreateOrConnectWithoutNotebookInput[]
     upsert?: ChatSessionUpsertWithWhereUniqueWithoutNotebookInput | ChatSessionUpsertWithWhereUniqueWithoutNotebookInput[]
@@ -8517,20 +8531,6 @@ export namespace Prisma {
     update?: DocumentUpdateWithWhereUniqueWithoutNotebookInput | DocumentUpdateWithWhereUniqueWithoutNotebookInput[]
     updateMany?: DocumentUpdateManyWithWhereWithoutNotebookInput | DocumentUpdateManyWithWhereWithoutNotebookInput[]
     deleteMany?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-  }
-
-  export type ChatSessionUncheckedUpdateManyWithoutNotebookNestedInput = {
-    create?: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput> | ChatSessionCreateWithoutNotebookInput[] | ChatSessionUncheckedCreateWithoutNotebookInput[]
-    connectOrCreate?: ChatSessionCreateOrConnectWithoutNotebookInput | ChatSessionCreateOrConnectWithoutNotebookInput[]
-    upsert?: ChatSessionUpsertWithWhereUniqueWithoutNotebookInput | ChatSessionUpsertWithWhereUniqueWithoutNotebookInput[]
-    createMany?: ChatSessionCreateManyNotebookInputEnvelope
-    set?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
-    disconnect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
-    delete?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
-    connect?: ChatSessionWhereUniqueInput | ChatSessionWhereUniqueInput[]
-    update?: ChatSessionUpdateWithWhereUniqueWithoutNotebookInput | ChatSessionUpdateWithWhereUniqueWithoutNotebookInput[]
-    updateMany?: ChatSessionUpdateManyWithWhereWithoutNotebookInput | ChatSessionUpdateManyWithWhereWithoutNotebookInput[]
-    deleteMany?: ChatSessionScalarWhereInput | ChatSessionScalarWhereInput[]
   }
 
   export type NotebookCreateNestedOneWithoutDocumentsInput = {
@@ -8559,10 +8559,11 @@ export namespace Prisma {
     update?: XOR<XOR<NotebookUpdateToOneWithWhereWithoutDocumentsInput, NotebookUpdateWithoutDocumentsInput>, NotebookUncheckedUpdateWithoutDocumentsInput>
   }
 
-  export type UserCreateNestedOneWithoutChatSessionsInput = {
-    create?: XOR<UserCreateWithoutChatSessionsInput, UserUncheckedCreateWithoutChatSessionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutChatSessionsInput
-    connect?: UserWhereUniqueInput
+  export type ChatMessageCreateNestedManyWithoutSessionInput = {
+    create?: XOR<ChatMessageCreateWithoutSessionInput, ChatMessageUncheckedCreateWithoutSessionInput> | ChatMessageCreateWithoutSessionInput[] | ChatMessageUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: ChatMessageCreateOrConnectWithoutSessionInput | ChatMessageCreateOrConnectWithoutSessionInput[]
+    createMany?: ChatMessageCreateManySessionInputEnvelope
+    connect?: ChatMessageWhereUniqueInput | ChatMessageWhereUniqueInput[]
   }
 
   export type NotebookCreateNestedOneWithoutChatSessionsInput = {
@@ -8571,11 +8572,10 @@ export namespace Prisma {
     connect?: NotebookWhereUniqueInput
   }
 
-  export type ChatMessageCreateNestedManyWithoutSessionInput = {
-    create?: XOR<ChatMessageCreateWithoutSessionInput, ChatMessageUncheckedCreateWithoutSessionInput> | ChatMessageCreateWithoutSessionInput[] | ChatMessageUncheckedCreateWithoutSessionInput[]
-    connectOrCreate?: ChatMessageCreateOrConnectWithoutSessionInput | ChatMessageCreateOrConnectWithoutSessionInput[]
-    createMany?: ChatMessageCreateManySessionInputEnvelope
-    connect?: ChatMessageWhereUniqueInput | ChatMessageWhereUniqueInput[]
+  export type UserCreateNestedOneWithoutChatSessionsInput = {
+    create?: XOR<UserCreateWithoutChatSessionsInput, UserUncheckedCreateWithoutChatSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutChatSessionsInput
+    connect?: UserWhereUniqueInput
   }
 
   export type ChatMessageUncheckedCreateNestedManyWithoutSessionInput = {
@@ -8583,22 +8583,6 @@ export namespace Prisma {
     connectOrCreate?: ChatMessageCreateOrConnectWithoutSessionInput | ChatMessageCreateOrConnectWithoutSessionInput[]
     createMany?: ChatMessageCreateManySessionInputEnvelope
     connect?: ChatMessageWhereUniqueInput | ChatMessageWhereUniqueInput[]
-  }
-
-  export type UserUpdateOneRequiredWithoutChatSessionsNestedInput = {
-    create?: XOR<UserCreateWithoutChatSessionsInput, UserUncheckedCreateWithoutChatSessionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutChatSessionsInput
-    upsert?: UserUpsertWithoutChatSessionsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutChatSessionsInput, UserUpdateWithoutChatSessionsInput>, UserUncheckedUpdateWithoutChatSessionsInput>
-  }
-
-  export type NotebookUpdateOneRequiredWithoutChatSessionsNestedInput = {
-    create?: XOR<NotebookCreateWithoutChatSessionsInput, NotebookUncheckedCreateWithoutChatSessionsInput>
-    connectOrCreate?: NotebookCreateOrConnectWithoutChatSessionsInput
-    upsert?: NotebookUpsertWithoutChatSessionsInput
-    connect?: NotebookWhereUniqueInput
-    update?: XOR<XOR<NotebookUpdateToOneWithWhereWithoutChatSessionsInput, NotebookUpdateWithoutChatSessionsInput>, NotebookUncheckedUpdateWithoutChatSessionsInput>
   }
 
   export type ChatMessageUpdateManyWithoutSessionNestedInput = {
@@ -8613,6 +8597,22 @@ export namespace Prisma {
     update?: ChatMessageUpdateWithWhereUniqueWithoutSessionInput | ChatMessageUpdateWithWhereUniqueWithoutSessionInput[]
     updateMany?: ChatMessageUpdateManyWithWhereWithoutSessionInput | ChatMessageUpdateManyWithWhereWithoutSessionInput[]
     deleteMany?: ChatMessageScalarWhereInput | ChatMessageScalarWhereInput[]
+  }
+
+  export type NotebookUpdateOneRequiredWithoutChatSessionsNestedInput = {
+    create?: XOR<NotebookCreateWithoutChatSessionsInput, NotebookUncheckedCreateWithoutChatSessionsInput>
+    connectOrCreate?: NotebookCreateOrConnectWithoutChatSessionsInput
+    upsert?: NotebookUpsertWithoutChatSessionsInput
+    connect?: NotebookWhereUniqueInput
+    update?: XOR<XOR<NotebookUpdateToOneWithWhereWithoutChatSessionsInput, NotebookUpdateWithoutChatSessionsInput>, NotebookUncheckedUpdateWithoutChatSessionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutChatSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutChatSessionsInput, UserUncheckedCreateWithoutChatSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutChatSessionsInput
+    upsert?: UserUpsertWithoutChatSessionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutChatSessionsInput, UserUpdateWithoutChatSessionsInput>, UserUncheckedUpdateWithoutChatSessionsInput>
   }
 
   export type ChatMessageUncheckedUpdateManyWithoutSessionNestedInput = {
@@ -8840,43 +8840,13 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NotebookCreateWithoutUserInput = {
-    id?: string
-    title: string
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    documents?: DocumentCreateNestedManyWithoutNotebookInput
-    chatSessions?: ChatSessionCreateNestedManyWithoutNotebookInput
-  }
-
-  export type NotebookUncheckedCreateWithoutUserInput = {
-    id?: string
-    title: string
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    documents?: DocumentUncheckedCreateNestedManyWithoutNotebookInput
-    chatSessions?: ChatSessionUncheckedCreateNestedManyWithoutNotebookInput
-  }
-
-  export type NotebookCreateOrConnectWithoutUserInput = {
-    where: NotebookWhereUniqueInput
-    create: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput>
-  }
-
-  export type NotebookCreateManyUserInputEnvelope = {
-    data: NotebookCreateManyUserInput | NotebookCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
   export type ChatSessionCreateWithoutUserInput = {
     id?: string
     title?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    notebook: NotebookCreateNestedOneWithoutChatSessionsInput
     messages?: ChatMessageCreateNestedManyWithoutSessionInput
+    notebook: NotebookCreateNestedOneWithoutChatSessionsInput
   }
 
   export type ChatSessionUncheckedCreateWithoutUserInput = {
@@ -8898,32 +8868,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type NotebookUpsertWithWhereUniqueWithoutUserInput = {
+  export type NotebookCreateWithoutUserInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    chatSessions?: ChatSessionCreateNestedManyWithoutNotebookInput
+    documents?: DocumentCreateNestedManyWithoutNotebookInput
+  }
+
+  export type NotebookUncheckedCreateWithoutUserInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    chatSessions?: ChatSessionUncheckedCreateNestedManyWithoutNotebookInput
+    documents?: DocumentUncheckedCreateNestedManyWithoutNotebookInput
+  }
+
+  export type NotebookCreateOrConnectWithoutUserInput = {
     where: NotebookWhereUniqueInput
-    update: XOR<NotebookUpdateWithoutUserInput, NotebookUncheckedUpdateWithoutUserInput>
     create: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput>
   }
 
-  export type NotebookUpdateWithWhereUniqueWithoutUserInput = {
-    where: NotebookWhereUniqueInput
-    data: XOR<NotebookUpdateWithoutUserInput, NotebookUncheckedUpdateWithoutUserInput>
-  }
-
-  export type NotebookUpdateManyWithWhereWithoutUserInput = {
-    where: NotebookScalarWhereInput
-    data: XOR<NotebookUpdateManyMutationInput, NotebookUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type NotebookScalarWhereInput = {
-    AND?: NotebookScalarWhereInput | NotebookScalarWhereInput[]
-    OR?: NotebookScalarWhereInput[]
-    NOT?: NotebookScalarWhereInput | NotebookScalarWhereInput[]
-    id?: StringFilter<"Notebook"> | string
-    title?: StringFilter<"Notebook"> | string
-    description?: StringNullableFilter<"Notebook"> | string | null
-    createdAt?: DateTimeFilter<"Notebook"> | Date | string
-    updatedAt?: DateTimeFilter<"Notebook"> | Date | string
-    userId?: StringFilter<"Notebook"> | string
+  export type NotebookCreateManyUserInputEnvelope = {
+    data: NotebookCreateManyUserInput | NotebookCreateManyUserInput[]
+    skipDuplicates?: boolean
   }
 
   export type ChatSessionUpsertWithWhereUniqueWithoutUserInput = {
@@ -8954,31 +8926,60 @@ export namespace Prisma {
     notebookId?: StringFilter<"ChatSession"> | string
   }
 
-  export type UserCreateWithoutNotebooksInput = {
-    id?: string
-    clerkUserId: string
-    email: string
-    name?: string | null
-    imageUrl?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    chatSessions?: ChatSessionCreateNestedManyWithoutUserInput
+  export type NotebookUpsertWithWhereUniqueWithoutUserInput = {
+    where: NotebookWhereUniqueInput
+    update: XOR<NotebookUpdateWithoutUserInput, NotebookUncheckedUpdateWithoutUserInput>
+    create: XOR<NotebookCreateWithoutUserInput, NotebookUncheckedCreateWithoutUserInput>
   }
 
-  export type UserUncheckedCreateWithoutNotebooksInput = {
-    id?: string
-    clerkUserId: string
-    email: string
-    name?: string | null
-    imageUrl?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    chatSessions?: ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  export type NotebookUpdateWithWhereUniqueWithoutUserInput = {
+    where: NotebookWhereUniqueInput
+    data: XOR<NotebookUpdateWithoutUserInput, NotebookUncheckedUpdateWithoutUserInput>
   }
 
-  export type UserCreateOrConnectWithoutNotebooksInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutNotebooksInput, UserUncheckedCreateWithoutNotebooksInput>
+  export type NotebookUpdateManyWithWhereWithoutUserInput = {
+    where: NotebookScalarWhereInput
+    data: XOR<NotebookUpdateManyMutationInput, NotebookUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type NotebookScalarWhereInput = {
+    AND?: NotebookScalarWhereInput | NotebookScalarWhereInput[]
+    OR?: NotebookScalarWhereInput[]
+    NOT?: NotebookScalarWhereInput | NotebookScalarWhereInput[]
+    id?: StringFilter<"Notebook"> | string
+    title?: StringFilter<"Notebook"> | string
+    description?: StringNullableFilter<"Notebook"> | string | null
+    createdAt?: DateTimeFilter<"Notebook"> | Date | string
+    updatedAt?: DateTimeFilter<"Notebook"> | Date | string
+    userId?: StringFilter<"Notebook"> | string
+  }
+
+  export type ChatSessionCreateWithoutNotebookInput = {
+    id?: string
+    title?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: ChatMessageCreateNestedManyWithoutSessionInput
+    user: UserCreateNestedOneWithoutChatSessionsInput
+  }
+
+  export type ChatSessionUncheckedCreateWithoutNotebookInput = {
+    id?: string
+    title?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userId: string
+    messages?: ChatMessageUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type ChatSessionCreateOrConnectWithoutNotebookInput = {
+    where: ChatSessionWhereUniqueInput
+    create: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput>
+  }
+
+  export type ChatSessionCreateManyNotebookInputEnvelope = {
+    data: ChatSessionCreateManyNotebookInput | ChatSessionCreateManyNotebookInput[]
+    skipDuplicates?: boolean
   }
 
   export type DocumentCreateWithoutNotebookInput = {
@@ -9015,32 +9016,79 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ChatSessionCreateWithoutNotebookInput = {
+  export type UserCreateWithoutNotebooksInput = {
     id?: string
-    title?: string | null
+    clerkUserId: string
+    email: string
+    name?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutChatSessionsInput
-    messages?: ChatMessageCreateNestedManyWithoutSessionInput
+    chatSessions?: ChatSessionCreateNestedManyWithoutUserInput
   }
 
-  export type ChatSessionUncheckedCreateWithoutNotebookInput = {
+  export type UserUncheckedCreateWithoutNotebooksInput = {
     id?: string
-    title?: string | null
+    clerkUserId: string
+    email: string
+    name?: string | null
+    imageUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    userId: string
-    messages?: ChatMessageUncheckedCreateNestedManyWithoutSessionInput
+    chatSessions?: ChatSessionUncheckedCreateNestedManyWithoutUserInput
   }
 
-  export type ChatSessionCreateOrConnectWithoutNotebookInput = {
+  export type UserCreateOrConnectWithoutNotebooksInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutNotebooksInput, UserUncheckedCreateWithoutNotebooksInput>
+  }
+
+  export type ChatSessionUpsertWithWhereUniqueWithoutNotebookInput = {
     where: ChatSessionWhereUniqueInput
+    update: XOR<ChatSessionUpdateWithoutNotebookInput, ChatSessionUncheckedUpdateWithoutNotebookInput>
     create: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput>
   }
 
-  export type ChatSessionCreateManyNotebookInputEnvelope = {
-    data: ChatSessionCreateManyNotebookInput | ChatSessionCreateManyNotebookInput[]
-    skipDuplicates?: boolean
+  export type ChatSessionUpdateWithWhereUniqueWithoutNotebookInput = {
+    where: ChatSessionWhereUniqueInput
+    data: XOR<ChatSessionUpdateWithoutNotebookInput, ChatSessionUncheckedUpdateWithoutNotebookInput>
+  }
+
+  export type ChatSessionUpdateManyWithWhereWithoutNotebookInput = {
+    where: ChatSessionScalarWhereInput
+    data: XOR<ChatSessionUpdateManyMutationInput, ChatSessionUncheckedUpdateManyWithoutNotebookInput>
+  }
+
+  export type DocumentUpsertWithWhereUniqueWithoutNotebookInput = {
+    where: DocumentWhereUniqueInput
+    update: XOR<DocumentUpdateWithoutNotebookInput, DocumentUncheckedUpdateWithoutNotebookInput>
+    create: XOR<DocumentCreateWithoutNotebookInput, DocumentUncheckedCreateWithoutNotebookInput>
+  }
+
+  export type DocumentUpdateWithWhereUniqueWithoutNotebookInput = {
+    where: DocumentWhereUniqueInput
+    data: XOR<DocumentUpdateWithoutNotebookInput, DocumentUncheckedUpdateWithoutNotebookInput>
+  }
+
+  export type DocumentUpdateManyWithWhereWithoutNotebookInput = {
+    where: DocumentScalarWhereInput
+    data: XOR<DocumentUpdateManyMutationInput, DocumentUncheckedUpdateManyWithoutNotebookInput>
+  }
+
+  export type DocumentScalarWhereInput = {
+    AND?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
+    OR?: DocumentScalarWhereInput[]
+    NOT?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
+    id?: StringFilter<"Document"> | string
+    name?: StringFilter<"Document"> | string
+    appwriteId?: StringFilter<"Document"> | string
+    mimeType?: StringFilter<"Document"> | string
+    sizeBytes?: IntNullableFilter<"Document"> | number | null
+    status?: EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
+    totalChunks?: IntNullableFilter<"Document"> | number | null
+    createdAt?: DateTimeFilter<"Document"> | Date | string
+    updatedAt?: DateTimeFilter<"Document"> | Date | string
+    notebookId?: StringFilter<"Document"> | string
   }
 
   export type UserUpsertWithoutNotebooksInput = {
@@ -9076,62 +9124,14 @@ export namespace Prisma {
     chatSessions?: ChatSessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type DocumentUpsertWithWhereUniqueWithoutNotebookInput = {
-    where: DocumentWhereUniqueInput
-    update: XOR<DocumentUpdateWithoutNotebookInput, DocumentUncheckedUpdateWithoutNotebookInput>
-    create: XOR<DocumentCreateWithoutNotebookInput, DocumentUncheckedCreateWithoutNotebookInput>
-  }
-
-  export type DocumentUpdateWithWhereUniqueWithoutNotebookInput = {
-    where: DocumentWhereUniqueInput
-    data: XOR<DocumentUpdateWithoutNotebookInput, DocumentUncheckedUpdateWithoutNotebookInput>
-  }
-
-  export type DocumentUpdateManyWithWhereWithoutNotebookInput = {
-    where: DocumentScalarWhereInput
-    data: XOR<DocumentUpdateManyMutationInput, DocumentUncheckedUpdateManyWithoutNotebookInput>
-  }
-
-  export type DocumentScalarWhereInput = {
-    AND?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-    OR?: DocumentScalarWhereInput[]
-    NOT?: DocumentScalarWhereInput | DocumentScalarWhereInput[]
-    id?: StringFilter<"Document"> | string
-    name?: StringFilter<"Document"> | string
-    appwriteId?: StringFilter<"Document"> | string
-    mimeType?: StringFilter<"Document"> | string
-    sizeBytes?: IntNullableFilter<"Document"> | number | null
-    status?: EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
-    totalChunks?: IntNullableFilter<"Document"> | number | null
-    createdAt?: DateTimeFilter<"Document"> | Date | string
-    updatedAt?: DateTimeFilter<"Document"> | Date | string
-    notebookId?: StringFilter<"Document"> | string
-  }
-
-  export type ChatSessionUpsertWithWhereUniqueWithoutNotebookInput = {
-    where: ChatSessionWhereUniqueInput
-    update: XOR<ChatSessionUpdateWithoutNotebookInput, ChatSessionUncheckedUpdateWithoutNotebookInput>
-    create: XOR<ChatSessionCreateWithoutNotebookInput, ChatSessionUncheckedCreateWithoutNotebookInput>
-  }
-
-  export type ChatSessionUpdateWithWhereUniqueWithoutNotebookInput = {
-    where: ChatSessionWhereUniqueInput
-    data: XOR<ChatSessionUpdateWithoutNotebookInput, ChatSessionUncheckedUpdateWithoutNotebookInput>
-  }
-
-  export type ChatSessionUpdateManyWithWhereWithoutNotebookInput = {
-    where: ChatSessionScalarWhereInput
-    data: XOR<ChatSessionUpdateManyMutationInput, ChatSessionUncheckedUpdateManyWithoutNotebookInput>
-  }
-
   export type NotebookCreateWithoutDocumentsInput = {
     id?: string
     title: string
     description?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutNotebooksInput
     chatSessions?: ChatSessionCreateNestedManyWithoutNotebookInput
+    user: UserCreateNestedOneWithoutNotebooksInput
   }
 
   export type NotebookUncheckedCreateWithoutDocumentsInput = {
@@ -9166,8 +9166,8 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutNotebooksNestedInput
     chatSessions?: ChatSessionUpdateManyWithoutNotebookNestedInput
+    user?: UserUpdateOneRequiredWithoutNotebooksNestedInput
   }
 
   export type NotebookUncheckedUpdateWithoutDocumentsInput = {
@@ -9178,6 +9178,57 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userId?: StringFieldUpdateOperationsInput | string
     chatSessions?: ChatSessionUncheckedUpdateManyWithoutNotebookNestedInput
+  }
+
+  export type ChatMessageCreateWithoutSessionInput = {
+    id?: string
+    role: $Enums.MessageRole
+    content: string
+    sources?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ChatMessageUncheckedCreateWithoutSessionInput = {
+    id?: string
+    role: $Enums.MessageRole
+    content: string
+    sources?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ChatMessageCreateOrConnectWithoutSessionInput = {
+    where: ChatMessageWhereUniqueInput
+    create: XOR<ChatMessageCreateWithoutSessionInput, ChatMessageUncheckedCreateWithoutSessionInput>
+  }
+
+  export type ChatMessageCreateManySessionInputEnvelope = {
+    data: ChatMessageCreateManySessionInput | ChatMessageCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NotebookCreateWithoutChatSessionsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    documents?: DocumentCreateNestedManyWithoutNotebookInput
+    user: UserCreateNestedOneWithoutNotebooksInput
+  }
+
+  export type NotebookUncheckedCreateWithoutChatSessionsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userId: string
+    documents?: DocumentUncheckedCreateNestedManyWithoutNotebookInput
+  }
+
+  export type NotebookCreateOrConnectWithoutChatSessionsInput = {
+    where: NotebookWhereUniqueInput
+    create: XOR<NotebookCreateWithoutChatSessionsInput, NotebookUncheckedCreateWithoutChatSessionsInput>
   }
 
   export type UserCreateWithoutChatSessionsInput = {
@@ -9207,55 +9258,63 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutChatSessionsInput, UserUncheckedCreateWithoutChatSessionsInput>
   }
 
-  export type NotebookCreateWithoutChatSessionsInput = {
-    id?: string
-    title: string
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutNotebooksInput
-    documents?: DocumentCreateNestedManyWithoutNotebookInput
-  }
-
-  export type NotebookUncheckedCreateWithoutChatSessionsInput = {
-    id?: string
-    title: string
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    userId: string
-    documents?: DocumentUncheckedCreateNestedManyWithoutNotebookInput
-  }
-
-  export type NotebookCreateOrConnectWithoutChatSessionsInput = {
-    where: NotebookWhereUniqueInput
-    create: XOR<NotebookCreateWithoutChatSessionsInput, NotebookUncheckedCreateWithoutChatSessionsInput>
-  }
-
-  export type ChatMessageCreateWithoutSessionInput = {
-    id?: string
-    role: $Enums.MessageRole
-    content: string
-    sources?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type ChatMessageUncheckedCreateWithoutSessionInput = {
-    id?: string
-    role: $Enums.MessageRole
-    content: string
-    sources?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type ChatMessageCreateOrConnectWithoutSessionInput = {
+  export type ChatMessageUpsertWithWhereUniqueWithoutSessionInput = {
     where: ChatMessageWhereUniqueInput
+    update: XOR<ChatMessageUpdateWithoutSessionInput, ChatMessageUncheckedUpdateWithoutSessionInput>
     create: XOR<ChatMessageCreateWithoutSessionInput, ChatMessageUncheckedCreateWithoutSessionInput>
   }
 
-  export type ChatMessageCreateManySessionInputEnvelope = {
-    data: ChatMessageCreateManySessionInput | ChatMessageCreateManySessionInput[]
-    skipDuplicates?: boolean
+  export type ChatMessageUpdateWithWhereUniqueWithoutSessionInput = {
+    where: ChatMessageWhereUniqueInput
+    data: XOR<ChatMessageUpdateWithoutSessionInput, ChatMessageUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type ChatMessageUpdateManyWithWhereWithoutSessionInput = {
+    where: ChatMessageScalarWhereInput
+    data: XOR<ChatMessageUpdateManyMutationInput, ChatMessageUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type ChatMessageScalarWhereInput = {
+    AND?: ChatMessageScalarWhereInput | ChatMessageScalarWhereInput[]
+    OR?: ChatMessageScalarWhereInput[]
+    NOT?: ChatMessageScalarWhereInput | ChatMessageScalarWhereInput[]
+    id?: StringFilter<"ChatMessage"> | string
+    role?: EnumMessageRoleFilter<"ChatMessage"> | $Enums.MessageRole
+    content?: StringFilter<"ChatMessage"> | string
+    sources?: JsonNullableFilter<"ChatMessage">
+    createdAt?: DateTimeFilter<"ChatMessage"> | Date | string
+    sessionId?: StringFilter<"ChatMessage"> | string
+  }
+
+  export type NotebookUpsertWithoutChatSessionsInput = {
+    update: XOR<NotebookUpdateWithoutChatSessionsInput, NotebookUncheckedUpdateWithoutChatSessionsInput>
+    create: XOR<NotebookCreateWithoutChatSessionsInput, NotebookUncheckedCreateWithoutChatSessionsInput>
+    where?: NotebookWhereInput
+  }
+
+  export type NotebookUpdateToOneWithWhereWithoutChatSessionsInput = {
+    where?: NotebookWhereInput
+    data: XOR<NotebookUpdateWithoutChatSessionsInput, NotebookUncheckedUpdateWithoutChatSessionsInput>
+  }
+
+  export type NotebookUpdateWithoutChatSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    documents?: DocumentUpdateManyWithoutNotebookNestedInput
+    user?: UserUpdateOneRequiredWithoutNotebooksNestedInput
+  }
+
+  export type NotebookUncheckedUpdateWithoutChatSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    documents?: DocumentUncheckedUpdateManyWithoutNotebookNestedInput
   }
 
   export type UserUpsertWithoutChatSessionsInput = {
@@ -9291,72 +9350,13 @@ export namespace Prisma {
     notebooks?: NotebookUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type NotebookUpsertWithoutChatSessionsInput = {
-    update: XOR<NotebookUpdateWithoutChatSessionsInput, NotebookUncheckedUpdateWithoutChatSessionsInput>
-    create: XOR<NotebookCreateWithoutChatSessionsInput, NotebookUncheckedCreateWithoutChatSessionsInput>
-    where?: NotebookWhereInput
-  }
-
-  export type NotebookUpdateToOneWithWhereWithoutChatSessionsInput = {
-    where?: NotebookWhereInput
-    data: XOR<NotebookUpdateWithoutChatSessionsInput, NotebookUncheckedUpdateWithoutChatSessionsInput>
-  }
-
-  export type NotebookUpdateWithoutChatSessionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutNotebooksNestedInput
-    documents?: DocumentUpdateManyWithoutNotebookNestedInput
-  }
-
-  export type NotebookUncheckedUpdateWithoutChatSessionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
-    documents?: DocumentUncheckedUpdateManyWithoutNotebookNestedInput
-  }
-
-  export type ChatMessageUpsertWithWhereUniqueWithoutSessionInput = {
-    where: ChatMessageWhereUniqueInput
-    update: XOR<ChatMessageUpdateWithoutSessionInput, ChatMessageUncheckedUpdateWithoutSessionInput>
-    create: XOR<ChatMessageCreateWithoutSessionInput, ChatMessageUncheckedCreateWithoutSessionInput>
-  }
-
-  export type ChatMessageUpdateWithWhereUniqueWithoutSessionInput = {
-    where: ChatMessageWhereUniqueInput
-    data: XOR<ChatMessageUpdateWithoutSessionInput, ChatMessageUncheckedUpdateWithoutSessionInput>
-  }
-
-  export type ChatMessageUpdateManyWithWhereWithoutSessionInput = {
-    where: ChatMessageScalarWhereInput
-    data: XOR<ChatMessageUpdateManyMutationInput, ChatMessageUncheckedUpdateManyWithoutSessionInput>
-  }
-
-  export type ChatMessageScalarWhereInput = {
-    AND?: ChatMessageScalarWhereInput | ChatMessageScalarWhereInput[]
-    OR?: ChatMessageScalarWhereInput[]
-    NOT?: ChatMessageScalarWhereInput | ChatMessageScalarWhereInput[]
-    id?: StringFilter<"ChatMessage"> | string
-    role?: EnumMessageRoleFilter<"ChatMessage"> | $Enums.MessageRole
-    content?: StringFilter<"ChatMessage"> | string
-    sources?: JsonNullableFilter<"ChatMessage">
-    createdAt?: DateTimeFilter<"ChatMessage"> | Date | string
-    sessionId?: StringFilter<"ChatMessage"> | string
-  }
-
   export type ChatSessionCreateWithoutMessagesInput = {
     id?: string
     title?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutChatSessionsInput
     notebook: NotebookCreateNestedOneWithoutChatSessionsInput
+    user: UserCreateNestedOneWithoutChatSessionsInput
   }
 
   export type ChatSessionUncheckedCreateWithoutMessagesInput = {
@@ -9389,8 +9389,8 @@ export namespace Prisma {
     title?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
     notebook?: NotebookUpdateOneRequiredWithoutChatSessionsNestedInput
+    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
   }
 
   export type ChatSessionUncheckedUpdateWithoutMessagesInput = {
@@ -9402,14 +9402,6 @@ export namespace Prisma {
     notebookId?: StringFieldUpdateOperationsInput | string
   }
 
-  export type NotebookCreateManyUserInput = {
-    id?: string
-    title: string
-    description?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type ChatSessionCreateManyUserInput = {
     id?: string
     title?: string | null
@@ -9418,32 +9410,12 @@ export namespace Prisma {
     notebookId: string
   }
 
-  export type NotebookUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    documents?: DocumentUpdateManyWithoutNotebookNestedInput
-    chatSessions?: ChatSessionUpdateManyWithoutNotebookNestedInput
-  }
-
-  export type NotebookUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    documents?: DocumentUncheckedUpdateManyWithoutNotebookNestedInput
-    chatSessions?: ChatSessionUncheckedUpdateManyWithoutNotebookNestedInput
-  }
-
-  export type NotebookUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NotebookCreateManyUserInput = {
+    id?: string
+    title: string
+    description?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ChatSessionUpdateWithoutUserInput = {
@@ -9451,8 +9423,8 @@ export namespace Prisma {
     title?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    notebook?: NotebookUpdateOneRequiredWithoutChatSessionsNestedInput
     messages?: ChatMessageUpdateManyWithoutSessionNestedInput
+    notebook?: NotebookUpdateOneRequiredWithoutChatSessionsNestedInput
   }
 
   export type ChatSessionUncheckedUpdateWithoutUserInput = {
@@ -9472,6 +9444,42 @@ export namespace Prisma {
     notebookId?: StringFieldUpdateOperationsInput | string
   }
 
+  export type NotebookUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chatSessions?: ChatSessionUpdateManyWithoutNotebookNestedInput
+    documents?: DocumentUpdateManyWithoutNotebookNestedInput
+  }
+
+  export type NotebookUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chatSessions?: ChatSessionUncheckedUpdateManyWithoutNotebookNestedInput
+    documents?: DocumentUncheckedUpdateManyWithoutNotebookNestedInput
+  }
+
+  export type NotebookUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ChatSessionCreateManyNotebookInput = {
+    id?: string
+    title?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    userId: string
+  }
+
   export type DocumentCreateManyNotebookInput = {
     id?: string
     name: string
@@ -9484,12 +9492,30 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type ChatSessionCreateManyNotebookInput = {
-    id?: string
-    title?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    userId: string
+  export type ChatSessionUpdateWithoutNotebookInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: ChatMessageUpdateManyWithoutSessionNestedInput
+    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
+  }
+
+  export type ChatSessionUncheckedUpdateWithoutNotebookInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
+    messages?: ChatMessageUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type ChatSessionUncheckedUpdateManyWithoutNotebookInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: StringFieldUpdateOperationsInput | string
   }
 
   export type DocumentUpdateWithoutNotebookInput = {
@@ -9526,32 +9552,6 @@ export namespace Prisma {
     totalChunks?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ChatSessionUpdateWithoutNotebookInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutChatSessionsNestedInput
-    messages?: ChatMessageUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ChatSessionUncheckedUpdateWithoutNotebookInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
-    messages?: ChatMessageUncheckedUpdateManyWithoutSessionNestedInput
-  }
-
-  export type ChatSessionUncheckedUpdateManyWithoutNotebookInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    userId?: StringFieldUpdateOperationsInput | string
   }
 
   export type ChatMessageCreateManySessionInput = {
