@@ -1,21 +1,17 @@
-import { redirect } from 'next/navigation';
-import { auth } from '@clerk/nextjs/server';
-import { DashboardClientLayout } from './DashboardClientLayout';
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
+import { DashboardClientLayout } from "./DashboardClientLayout"
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const { userId } = await auth();
+  const { userId } = await auth()
 
   if (!userId) {
-    redirect('/sign-in');
+    redirect("/sign-in")
   }
 
-  return (
-    <DashboardClientLayout>
-      {children}
-    </DashboardClientLayout>
-  );
+  return <DashboardClientLayout>{children}</DashboardClientLayout>
 }

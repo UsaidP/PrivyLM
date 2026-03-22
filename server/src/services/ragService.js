@@ -50,6 +50,10 @@ export const chat = async ({ message, notebookId, userId, sessionId, history, se
     };
   }
 
+  console.log(`[RAG] Query: "${message.slice(0, 60)}..."`);
+  console.log(`[RAG] Collection: ${collectionName}`);
+  console.log(`[RAG] Source filter: ${selectedSourceIds?.length ? selectedSourceIds.join(", ") : "none (all docs)"}`);
+
   const searchResults = await searchVectors(
     collectionName,
     queryVector,
@@ -57,9 +61,12 @@ export const chat = async ({ message, notebookId, userId, sessionId, history, se
     filter
   );
 
-  // We want to filter threshold. The node qdrant client rest searchVectors limit handles `score` threshold differently
-  // if not handled at query time, let's filter the results manually here
-  const filteredChunks = searchResults.filter(result => result.score >= 0.3);
+  console.log(`[RAG] Raw results: ${searchResults.length}, scores: ${searchResults.map(r => r.score.toFixed(3)).join(", ")}`);
+
+  // FIX: raised threshold from 0.3 → 0.5 for pplx-embed cosine similarity
+  const filteredChunks = searchResults.filter(result => result.score >= 0.5);
+
+  console.log(`[RAG] After threshold (≥0.5): ${filteredChunks.length} chunks`);
 
   // 3. Deduplicate chunks (by documentId + chunk index or text to avoid redundant context)
   const uniqueChunks = [];
@@ -84,11 +91,22 @@ export const chat = async ({ message, notebookId, userId, sessionId, history, se
     }
   }
 
+  // Handle case when no relevant chunks found
+  if (uniqueChunks.length === 0) {
+    res.write(`data: ${JSON.stringify({ type: "token", content: "I couldn't find relevant information in the selected documents for that question. Try selecting different sources or rephrasing your query." })}\n\n`);
+    res.write(`data: ${JSON.stringify({ type: "sources", sources: [] })}\n\n`);
+    res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+    res.end();
+    return { fullResponse: "", sources: [] };
+  }
+
   // Build the context string
   let contextString = "";
   uniqueChunks.forEach((chunk, idx) => {
-    contextString += `\n\n[${idx + 1}] Document: ${chunk.payload.metadata.fileName || "Unnamed"}\n`;
-    contextString += `Text: ${chunk.payload.pageContent}`;
+    const name = chunk.payload.metadata.fileName || "Unnamed";
+    const page = chunk.payload.metadata.pageNumber ? ` p.${chunk.payload.metadata.pageNumber}` : "";
+    contextString += `\n\n[${idx + 1}] ${name}${page} (relevance: ${chunk.score.toFixed(2)})\n`;
+    contextString += chunk.payload.pageContent;
   });
 
   // 4. Build messages array for the LLM

@@ -1,161 +1,274 @@
-'use client';
+"use client"
 
-import { useState, useRef, useEffect } from 'react';
-import { Send, Square, MessageSquare, Bot } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { useChat, type Message, type Source } from '@/hooks/useChat';
-import { useDocuments } from '@/hooks/useDocuments';
-import { useSourceSelection } from '@/hooks/useSourceSelection';
+import {
+  AlertCircle,
+  Bot,
+  CheckCircle,
+  Copy,
+  Menu,
+  MessageSquare,
+  PanelRight,
+  Send,
+  Sparkles,
+  Square,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import { type Message, type Source, type UseChatReturn } from "@/hooks/useChat"
+import { useDocuments } from "@/hooks/useDocuments"
+import { useSourceSelection } from "@/hooks/useSourceSelection"
 
 interface ChatColumnProps {
-  notebookId: string;
-  notebookName?: string;
+  notebookId: string
+  notebookName?: string
+  chat: UseChatReturn
+  isMobile?: boolean
+  showLeftSidebar?: boolean
+  showRightSidebar?: boolean
+  onToggleLeft?: () => void
+  onToggleRight?: () => void
 }
 
 const SUGGESTIONS = [
-  'Summarize all sources',
-  'What are the key findings?',
-  'Compare the documents',
-  'List the main conclusions',
-];
+  { icon: Sparkles, text: "Summarize all sources", color: "var(--accent)" },
+  {
+    icon: MessageSquare,
+    text: "What are the key findings?",
+    color: "var(--privy-sage)",
+  },
+  {
+    icon: MessageSquare,
+    text: "Compare the documents",
+    color: "var(--privy-clay)",
+  },
+  {
+    icon: MessageSquare,
+    text: "List the main conclusions",
+    color: "var(--text-secondary)",
+  },
+]
 
 function ThinkingDots() {
   return (
-    <div style={{ display: 'flex', gap: 4 }}>
-      {[0, 1, 2].map(i => (
+    <div style={{ display: "flex", gap: 4, padding: "4px 0" }}>
+      {[0, 1, 2].map((i) => (
         <div
           key={i}
           style={{
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            background: 'var(--text-tertiary)',
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "var(--accent)",
             animation: `bounce 1.4s ease-in-out ${i * 0.16}s infinite`,
+            opacity: 0.7,
           }}
         />
       ))}
       <style>{`
         @keyframes bounce {
-          0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
           40% { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
-  );
+  )
 }
 
-function UserMessage({ message }: { message: Message }) {
+function UserMessage({ message, isMobile = false }: { message: Message; isMobile?: boolean }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(message.content)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    } catch (error) {
+      console.error("Failed to copy message:", error)
+    }
+  }, [message.content])
+
   return (
-    <div style={{
-      display: 'flex',
-      gap: 10,
-      flexDirection: 'row-reverse',
-      alignItems: 'flex-start',
-    }}>
-      <div style={{
-        width: 28,
-        height: 28,
-        borderRadius: 6,
-        background: '#00ADB5',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#222831' }}>U</span>
+    <div
+      style={{
+        display: "flex",
+        gap: isMobile ? 8 : 12,
+        flexDirection: "row-reverse",
+        alignItems: "flex-start",
+        marginBottom: isMobile ? 16 : 24,
+      }}
+    >
+      {/* Avatar */}
+      <div
+        style={{
+          width: isMobile ? 28 : 32,
+          height: isMobile ? 28 : 32,
+          borderRadius: 10,
+          background:
+            "linear-gradient(135deg, var(--accent) 0%, var(--privy-sage-soft) 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: "0 2px 8px rgba(122, 158, 126, 0.2)",
+        }}
+      >
+        <span
+          style={{
+            fontSize: isMobile ? 12 : 13,
+            fontWeight: 700,
+            color: "var(--primary-foreground)",
+          }}
+        >
+          U
+        </span>
       </div>
-      <div style={{ maxWidth: '82%' }}>
-        <div style={{
-          background: '#4A4F5A',
-          border: '1px solid #4A4F5A',
-          borderRadius: '12px 3px 12px 12px',
-          padding: '10px 14px',
-          fontSize: 13,
-          color: '#EEEEEE',
-          lineHeight: 1.6,
-        }}>
+
+      {/* Message Content */}
+      <div
+        style={{
+          maxWidth: isMobile ? "85%" : "80%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
+        <div
+          style={{
+            background: "var(--accent)",
+            borderRadius: "16px 4px 16px 16px",
+            padding: isMobile ? "10px 14px" : "12px 16px",
+            fontSize: isMobile ? 15 : 14,
+            color: "var(--primary-foreground)",
+            lineHeight: 1.6,
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+          }}
+        >
           {message.content}
         </div>
+
+        {/* Copy Button */}
+        <button
+          onClick={handleCopy}
+          type="button"
+          aria-label={copied ? "Copied to clipboard" : "Copy message"}
+          style={{
+            alignSelf: "flex-end",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "4px 8px",
+            background: "transparent",
+            border: "none",
+            borderRadius: 4,
+            color: "var(--text-muted)",
+            fontSize: 11,
+            cursor: "pointer",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--bg-surface)"
+            e.currentTarget.style.color = "var(--text-secondary)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent"
+            e.currentTarget.style.color = "var(--text-muted)"
+          }}
+        >
+          {copied ? (
+            <>
+              <CheckCircle size={12} />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy size={12} />
+              Copy
+            </>
+          )}
+        </button>
       </div>
     </div>
-  );
+  )
 }
 
-function SourceCitationCard({ source, index }: { source: Source; index: number }) {
-  return (
-    <div style={{
-      background: '#4A4F5A',
-      border: '1px solid #4A4F5A',
-      borderRadius: 7,
-      padding: '8px 10px',
-    }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 4,
-      }}>
-        <span style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: '#B0B0B0',
-        }}>
-          [{index}] {source.documentName}{source.page ? ` · p.${source.page}` : ''}
-        </span>
-        <span style={{
-          fontSize: 10,
-          padding: '2px 7px',
-          borderRadius: 100,
-          background: '#393E46',
-          color: '#888888',
-          border: '1px solid #4A4F5A',
-        }}>
-          {Math.round(source.score * 100)}%
-        </span>
-      </div>
-      <p style={{
-        fontSize: 11.5,
-        color: '#888888',
-        lineHeight: 1.6,
-        margin: 0,
-      }}>
-        "{source.text.slice(0, 200)}..."
-      </p>
-    </div>
-  );
-}
+function AssistantMessage({
+  message,
+  isMobile = false,
+}: {
+  message: Message & { isStreaming?: boolean }
+  isMobile?: boolean
+}) {
+  const [copied, setCopied] = useState(false)
+  const [feedback, setFeedback] = useState<"up" | "down" | null>(null)
 
-function AssistantMessage({ message }: { message: Message }) {
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const handleCopy = useCallback(async () => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(message.content)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    } catch (error) {
+      console.error("Failed to copy response:", error)
+    }
+  }, [message.content])
+
+  const handleFeedback = (type: "up" | "down") => {
+    setFeedback(type)
+    // In production, send feedback to backend
+  }
 
   return (
-    <div style={{
-      display: 'flex',
-      gap: 10,
-      alignItems: 'flex-start',
-    }}>
-      <div style={{
-        width: 28,
-        height: 28,
-        borderRadius: 6,
-        background: '#4A4F5A',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <Bot size={14} color="#B0B0B0" />
+    <div
+      style={{
+        display: "flex",
+        gap: isMobile ? 8 : 12,
+        alignItems: "flex-start",
+        marginBottom: isMobile ? 16 : 24,
+      }}
+    >
+      {/* Avatar */}
+      <div
+        style={{
+          width: isMobile ? 28 : 32,
+          height: isMobile ? 28 : 32,
+          borderRadius: 10,
+          background: "var(--bg-surface-hover)",
+          border: "1px solid var(--border-default)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Bot size={isMobile ? 16 : 18} color="var(--text-secondary)" />
       </div>
-      <div style={{ maxWidth: '82%', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{
-          background: '#393E46',
-          border: '1px solid #4A4F5A',
-          borderRadius: '3px 12px 12px 12px',
-          padding: '10px 14px',
-          fontSize: 13,
-          lineHeight: 1.6,
-        }}>
+
+      {/* Message Content */}
+      <div
+        style={{
+          maxWidth: isMobile ? "90%" : "80%",
+          display: "flex",
+          flexDirection: "column",
+          gap: isMobile ? 6 : 8,
+        }}
+      >
+        <div
+          style={{
+            background: "var(--bg-secondary)",
+            border: "1px solid var(--border-default)",
+            borderRadius: "4px 16px 16px 16px",
+            padding: isMobile ? "12px 14px" : "14px 16px",
+            fontSize: isMobile ? 15 : 14,
+            color: "var(--text-primary)",
+            lineHeight: 1.7,
+          }}
+        >
           {message.isStreaming && !message.content ? (
             <ThinkingDots />
           ) : (
@@ -165,348 +278,800 @@ function AssistantMessage({ message }: { message: Message }) {
               </ReactMarkdown>
             </div>
           )}
-          {message.isStreaming && message.content && (
-            <span style={{
-              display: 'inline-block',
-              width: 6,
-              height: 14,
-              background: '#00ADB5',
-              marginLeft: 2,
-              animation: 'blink 1s infinite',
-            }} />
-          )}
         </div>
 
+        {/* Sources */}
         {message.sources && message.sources.length > 0 && (
-          <div>
-            <button
-              type="button"
-              onClick={() => setSourcesOpen(!sourcesOpen)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '4px 8px',
-                borderRadius: 6,
-                border: 'none',
-                background: 'transparent',
-                color: '#888888',
-                fontSize: 11,
-                cursor: 'pointer',
-              }}
-            >
-              <MessageSquare size={12} />
-              {message.sources.length} sources cited {sourcesOpen ? '▾' : '▸'}
-            </button>
-            {sourcesOpen && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 6,
-                marginTop: 6,
-              }}>
-                {message.sources.map((src, i) => (
-                  <SourceCitationCard key={i} source={src} index={i + 1} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-      <style>{`
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function ChatEmptyState({ onChipClick }: { onChipClick: (text: string) => void }) {
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      gap: 20,
-      padding: 40,
-      textAlign: 'center',
-    }}>
-      <div style={{
-        width: 56,
-        height: 56,
-        borderRadius: 14,
-        background: '#4A4F5A',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <MessageSquare size={24} color="#888888" />
-      </div>
-      <div>
-        <h2 style={{
-          fontSize: 17,
-          fontWeight: 600,
-          color: '#EEEEEE',
-          letterSpacing: '-0.3px',
-          margin: '0 0 6px',
-        }}>
-          Ask your sources anything
-        </h2>
-        <p style={{
-          fontSize: 13,
-          color: '#888888',
-          maxWidth: 340,
-          lineHeight: 1.6,
-          margin: 0,
-        }}>
-          Powered by Groq llama-3.3-70b · Embeddings via nomic-embed · Qdrant vector search
-        </p>
-      </div>
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8,
-        justifyContent: 'center',
-        maxWidth: 460,
-      }}>
-        {SUGGESTIONS.map(s => (
-          <button
-            key={s}
-            type="button"
-            onClick={() => onChipClick(s)}
+          <div
             style={{
-              padding: '8px 14px',
-              borderRadius: 8,
-              border: '1px solid #4A4F5A',
-              background: '#393E46',
-              color: '#B0B0B0',
-              fontSize: 12,
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#4A4F5A';
-              e.currentTarget.style.borderColor = '#EEEEEE';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#393E46';
-              e.currentTarget.style.borderColor = '#4A4F5A';
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              marginTop: 8,
+              position: "relative",
             }}
           >
-            {s}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
+            {message.sources.slice(0, 4).map((source, idx) => (
+              <SourceCitationBubble key={idx} source={source} index={idx + 1} />
+            ))}
+          </div>
+        )}
 
-export function ChatColumn({ notebookId, notebookName }: ChatColumnProps) {
-  const { messages, isStreaming, error, sendMessage, stopStreaming } = useChat(notebookId);
-  const { data: documents } = useDocuments(notebookId);
-  const { selectedIds } = useSourceSelection();
-  const [inputValue, setInputValue] = useState('');
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+        {/* Action Buttons */}
+        {!message.isStreaming && message.content && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginTop: 4,
+            }}
+            role="group"
+            aria-label="Message actions"
+          >
+            <button
+              onClick={handleCopy}
+              type="button"
+              aria-label={copied ? "Copied to clipboard" : "Copy response"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 10px",
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border-default)",
+                borderRadius: 6,
+                color: feedback ? "var(--text-muted)" : "var(--text-secondary)",
+                fontSize: 12,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--bg-surface-hover)"
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--bg-surface)"
+              }}
+            >
+              {copied ? <CheckCircle size={14} /> : <Copy size={14} />}
+              {copied ? "Copied" : "Copy"}
+            </button>
 
-  const hasIndexed = documents?.some(d => d.status === 'INDEXED');
-  const selectedSourceIds = Array.from(selectedIds);
+            <div
+              style={{
+                height: 20,
+                width: 1,
+                background: "var(--border-default)",
+                margin: "0 4px",
+              }}
+              aria-hidden="true"
+            />
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+            <button
+              onClick={() => handleFeedback("up")}
+              type="button"
+              aria-label={feedback === "up" ? "Helpful response" : "Mark as helpful"}
+              aria-pressed={feedback === "up"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 10px",
+                background:
+                  feedback === "up"
+                    ? "var(--success-muted)"
+                    : "var(--bg-surface)",
+                border: `1px solid ${feedback === "up" ? "var(--success)" : "var(--border-default)"}`,
+                borderRadius: 6,
+                color:
+                  feedback === "up"
+                    ? "var(--success)"
+                    : "var(--text-secondary)",
+                fontSize: 12,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                if (feedback !== "up") {
+                  e.currentTarget.style.background = "var(--success-muted)"
+                  e.currentTarget.style.borderColor = "var(--success)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (feedback !== "up") {
+                  e.currentTarget.style.background = "var(--bg-surface)"
+                  e.currentTarget.style.borderColor = "var(--border-default)"
+                }
+              }}
+            >
+              <ThumbsUp size={14} />
+            </button>
 
-  useEffect(() => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    ta.style.height = 'auto';
-    ta.style.height = Math.min(ta.scrollHeight, 110) + 'px';
-  }, [inputValue]);
-
-  const handleSend = async () => {
-    if (!inputValue.trim() || isStreaming || !hasIndexed) return;
-    const text = inputValue.trim();
-    setInputValue('');
-    await sendMessage(text, selectedSourceIds);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  return (
-    <div style={{
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      background: '#222831',
-    }}>
-      <div style={{
-        height: 52,
-        background: '#393E46',
-        borderBottom: '1px solid #4A4F5A',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 20px',
-        flexShrink: 0,
-      }}>
-        <span style={{
-          fontSize: 15,
-          fontWeight: 600,
-          color: '#EEEEEE',
-        }}>
-          {notebookName || '...'}
-        </span>
-      </div>
-
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '20px 0',
-        background: '#222831',
-      }}>
-        {messages.length === 0 ? (
-          <ChatEmptyState onChipClick={(text) => sendMessage(text, selectedSourceIds)} />
-        ) : (
-          <div style={{
-            maxWidth: 680,
-            margin: '0 auto',
-            padding: '0 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
-          }}>
-            {messages.map(msg =>
-              msg.role === 'user'
-                ? <UserMessage key={msg.id} message={msg} />
-                : <AssistantMessage key={msg.id} message={msg} />
-            )}
-            <div ref={bottomRef} />
+            <button
+              onClick={() => handleFeedback("down")}
+              type="button"
+              aria-label={feedback === "down" ? "Not helpful" : "Mark as not helpful"}
+              aria-pressed={feedback === "down"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 10px",
+                background:
+                  feedback === "down"
+                    ? "var(--warning-muted)"
+                    : "var(--bg-surface)",
+                border: `1px solid ${feedback === "down" ? "var(--warning)" : "var(--border-default)"}`,
+                borderRadius: 6,
+                color:
+                  feedback === "down"
+                    ? "var(--warning)"
+                    : "var(--text-secondary)",
+                fontSize: 12,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                if (feedback !== "down") {
+                  e.currentTarget.style.background = "var(--warning-muted)"
+                  e.currentTarget.style.borderColor = "var(--warning)"
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (feedback !== "down") {
+                  e.currentTarget.style.background = "var(--bg-surface)"
+                  e.currentTarget.style.borderColor = "var(--border-default)"
+                }
+              }}
+            >
+              <ThumbsDown size={14} />
+            </button>
           </div>
         )}
       </div>
+    </div>
+  )
+}
 
-      {error && (
-        <div style={{
-          padding: '8px 20px',
-          background: 'rgba(248,113,113,0.1)',
-          borderTop: '1px solid #f87171',
+function SourceCitationBubble({
+  source,
+  index,
+}: {
+  source: Source
+  index: number
+}) {
+  const [open, setOpen] = useState(false)
+  const score = Math.round(source.score * 100)
+  const isHigh = score >= 90
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      setOpen(v => !v)
+    }
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-expanded={open}
+      onClick={() => setOpen(v => !v)}
+      onKeyDown={handleKeyDown}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '4px 10px',
+        borderRadius: 16,
+        background: open ? "var(--accent-muted)" : "var(--bg-surface)",
+        border: "1px solid " + (open ? "var(--accent)" : "var(--border-default)"),
+        cursor: 'pointer',
+        transition: 'all 0.15s ease',
+        fontSize: 11,
+        maxWidth: '100%',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--accent-muted)"
+        e.currentTarget.style.borderColor = "var(--accent)"
+        e.currentTarget.style.transform = "translateY(-1px)"
+      }}
+      onMouseLeave={(e) => {
+        if (!open) {
+          e.currentTarget.style.background = "var(--bg-surface)"
+          e.currentTarget.style.borderColor = "var(--border-default)"
+        }
+        e.currentTarget.style.transform = "translateY(0)"
+      }}
+    >
+      {/* Index badge */}
+      <span style={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: 10,
+        fontWeight: 600,
+        color: open ? 'var(--accent)' : 'var(--text-muted)',
+        minWidth: 14,
+      }}>
+        {index}
+      </span>
+
+      {/* Document name */}
+      <span style={{
+        fontSize: 11,
+        color: 'var(--text-secondary)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        maxWidth: 120,
+      }}>
+        {source.documentName}
+      </span>
+
+      {/* Page number if available */}
+      {source.page && (
+        <span style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: 9,
+          color: 'var(--text-muted)',
+          padding: '1px 4px',
+          background: 'var(--bg-secondary)',
+          borderRadius: 4,
         }}>
-          <p style={{
-            margin: 0,
+          p.{source.page}
+        </span>
+      )}
+
+      {/* Score dot */}
+      <span
+        title={score + "% match"}
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          background: isHigh ? 'var(--success)' : 'var(--warning)',
+          flexShrink: 0,
+        }}
+      />
+
+      {/* Expanded tooltip-like content */}
+      {open && source.text && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 'calc(100% + 8px)',
+            left: 0,
+            right: 0,
+            padding: '10px 12px',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-default)',
+            borderRadius: 10,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+            zIndex: 10,
             fontSize: 12,
-            color: '#f87171',
-          }}>
+            lineHeight: 1.5,
+            color: 'var(--text-secondary)',
+            fontStyle: 'italic',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          &ldquo;{source.text}&rdquo;
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ChatEmptyState({
+  onChipClick,
+}: {
+  onChipClick: (text: string) => void
+}) {
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "48px 24px",
+        textAlign: "center",
+      }}
+    >
+      {/* Icon */}
+      <div
+        style={{
+          width: 64,
+          height: 64,
+          borderRadius: 16,
+          background:
+            "linear-gradient(135deg, var(--accent-muted) 0%, var(--bg-surface) 100%)",
+          border: "1px solid var(--accent)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 24,
+          boxShadow: "0 4px 16px rgba(122, 158, 126, 0.15)",
+        }}
+      >
+        <MessageSquare size={28} color="var(--accent)" />
+      </div>
+
+      {/* Title */}
+      <h2
+        style={{
+          fontSize: 20,
+          fontWeight: 600,
+          color: "var(--text-primary)",
+          letterSpacing: "-0.3px",
+          margin: "0 0 8px",
+        }}
+      >
+        Start a conversation
+      </h2>
+
+      {/* Subtitle */}
+      <p
+        style={{
+          fontSize: 14,
+          color: "var(--text-muted)",
+          maxWidth: 360,
+          lineHeight: 1.6,
+          margin: "0 0 32px",
+        }}
+      >
+        Ask questions about your documents and get instant, source-grounded
+        answers.
+      </p>
+
+      {/* Suggestions */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: 10,
+          width: "100%",
+          maxWidth: 600,
+        }}
+      >
+        {SUGGESTIONS.map((suggestion, idx) => {
+          const ariaLabel = "Ask: " + suggestion.text
+          return (
+            <button
+              key={idx}
+              onClick={() => onChipClick(suggestion.text)}
+              type="button"
+              aria-label={ariaLabel}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px 14px",
+                borderRadius: 10,
+                border: "1px solid var(--border-default)",
+                background: "var(--bg-secondary)",
+                color: "var(--text-secondary)",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.15s",
+                textAlign: "left",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--bg-surface-hover)"
+                e.currentTarget.style.borderColor = suggestion.color
+                e.currentTarget.style.color = "var(--text-primary)"
+                e.currentTarget.style.transform = "translateY(-2px)"
+                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.08)"
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--bg-secondary)"
+                e.currentTarget.style.borderColor = "var(--border-default)"
+                e.currentTarget.style.color = "var(--text-secondary)"
+                e.currentTarget.style.transform = "translateY(0)"
+                e.currentTarget.style.boxShadow = "none"
+              }}
+            >
+              <suggestion.icon size={16} color={suggestion.color} aria-hidden="true" />
+              {suggestion.text}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export function ChatColumn({
+  notebookId,
+  notebookName,
+  chat,
+  isMobile = false,
+  showLeftSidebar = true,
+  showRightSidebar = true,
+  onToggleLeft,
+  onToggleRight,
+}: ChatColumnProps) {
+  const { messages, isStreaming, error, sendMessage, stopStreaming } = chat
+  const { data: documents } = useDocuments(notebookId)
+  const { selectedIds } = useSourceSelection()
+  const [inputValue, setInputValue] = useState("")
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const hasIndexed = documents?.some((d) => d.status === "INDEXED")
+  const selectedSourceIds = Array.from(selectedIds)
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const ta = textareaRef.current
+    if (!ta) return
+    ta.style.height = "auto"
+    ta.style.height = Math.min(ta.scrollHeight, 120) + "px"
+  }, [inputValue])
+
+  const handleSend = () => {
+    if (inputValue.trim() && hasIndexed) {
+      sendMessage(inputValue.trim(), selectedSourceIds)
+      setInputValue("")
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        minHeight: 0,
+        background: "var(--bg-primary)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          height: isMobile ? 60 : 56,
+          background: "var(--bg-secondary)",
+          borderBottom: "1px solid var(--border-default)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: isMobile ? "0 16px" : "0 20px",
+          flexShrink: 0,
+          gap: 12,
+        }}
+      >
+        {/* Left toggle button (mobile) */}
+        {isMobile && onToggleLeft && (
+          <button
+            onClick={onToggleLeft}
+            type="button"
+            aria-label={showLeftSidebar ? "Close conversations" : "Open conversations"}
+            aria-pressed={showLeftSidebar}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              border: "1px solid var(--border-default)",
+              background: showLeftSidebar ? "var(--accent-muted)" : "var(--bg-surface)",
+              color: showLeftSidebar ? "var(--accent)" : "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+              transition: "all 0.2s ease",
+              boxShadow: showLeftSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none",
+              transform: showLeftSidebar ? "translateY(-1px)" : "translateY(0)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--accent-muted)"
+              e.currentTarget.style.borderColor = "var(--accent)"
+              e.currentTarget.style.transform = "translateY(-2px)"
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(122, 158, 126, 0.2)"
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = showLeftSidebar ? "var(--accent-muted)" : "var(--bg-surface)"
+              e.currentTarget.style.borderColor = "var(--border-default)"
+              e.currentTarget.style.transform = showLeftSidebar ? "translateY(-1px)" : "translateY(0)"
+              e.currentTarget.style.boxShadow = showLeftSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none"
+            }}
+          >
+            <Menu size={20} />
+          </button>
+        )}
+
+        {/* Title */}
+        <span
+          style={{
+            fontSize: isMobile ? 16 : 15,
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            flex: 1,
+            textAlign: isMobile ? "center" : "left",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {notebookName || "Notebook"}
+        </span>
+
+        {/* Right toggle button (mobile) */}
+        {isMobile && onToggleRight && (
+          <button
+            onClick={onToggleRight}
+            type="button"
+            aria-label={showRightSidebar ? "Close studio" : "Open studio"}
+            aria-pressed={showRightSidebar}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              border: "1px solid var(--border-default)",
+              background: showRightSidebar ? "var(--accent-muted)" : "var(--bg-surface)",
+              color: showRightSidebar ? "var(--accent)" : "var(--text-secondary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+              transition: "all 0.2s ease",
+              boxShadow: showRightSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none",
+              transform: showRightSidebar ? "translateY(-1px)" : "translateY(0)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--accent-muted)"
+              e.currentTarget.style.borderColor = "var(--accent)"
+              e.currentTarget.style.transform = "translateY(-2px)"
+              e.currentTarget.style.boxShadow = "0 4px 12px rgba(122, 158, 126, 0.2)"
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = showRightSidebar ? "var(--accent-muted)" : "var(--bg-surface)"
+              e.currentTarget.style.borderColor = "var(--border-default)"
+              e.currentTarget.style.transform = showRightSidebar ? "translateY(-1px)" : "translateY(0)"
+              e.currentTarget.style.boxShadow = showRightSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none"
+            }}
+          >
+            <PanelRight size={20} />
+          </button>
+        )}
+      </div>
+
+      {/* Messages */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          padding: isMobile ? "16px 12px" : "24px 20px",
+        }}
+      >
+        {messages.length === 0 ? (
+          <ChatEmptyState
+            onChipClick={(text) => sendMessage(text, selectedSourceIds)}
+          />
+        ) : (
+          <>
+            {messages.map((message) =>
+              message.role === "user" ? (
+                <UserMessage key={message.id} message={message} isMobile={isMobile} />
+              ) : (
+                <AssistantMessage key={message.id} message={message} isMobile={isMobile} />
+              )
+            )}
+            <div ref={bottomRef} />
+          </>
+        )}
+      </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div
+          style={{
+            padding: "12px 20px",
+            background: "var(--bg-destructive)",
+            borderTop: "1px solid var(--destructive)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <AlertCircle size={16} color="var(--destructive)" />
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              color: "var(--destructive)",
+              fontWeight: 500,
+            }}
+          >
             {error}
           </p>
         </div>
       )}
 
-      <div style={{
-        padding: '16px 20px',
-        flexShrink: 0,
-        borderTop: '1px solid #4A4F5A',
-        background: '#393E46',
-      }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            padding: '12px 14px',
-            borderRadius: 12,
-            background: '#222831',
-            border: '1px solid #4A4F5A',
-          }}>
+      {/* Warning when no sources selected */}
+      {hasIndexed && selectedSourceIds.length === 0 && (
+        <div
+          style={{
+            padding: "12px 20px",
+            background: "var(--warning-muted)",
+            borderTop: "1px solid var(--warning)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
+          <AlertCircle
+            size={16}
+            style={{ color: "var(--warning)", flexShrink: 0 }}
+          />
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              color: "var(--warning)",
+              lineHeight: 1.5,
+            }}
+          >
+            No sources selected. All indexed documents will be searched.{" "}
+            <span style={{ fontWeight: 600 }}>Select specific sources</span> for
+            targeted results.
+          </p>
+        </div>
+      )}
+
+      {/* Input */}
+      <div
+        style={{
+          padding: isMobile ? "12px 16px" : "20px",
+          flexShrink: 0,
+          borderTop: "1px solid var(--border-default)",
+          background: "var(--bg-secondary)",
+        }}
+      >
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              gap: isMobile ? 8 : 12,
+              padding: isMobile ? "12px 14px" : "14px 16px",
+              borderRadius: 14,
+              background: "var(--bg-primary)",
+              border: "1px solid " + (error ? "var(--destructive)" : "var(--border-default)"),
+              transition: "all 0.15s",
+            }}
+          >
             <textarea
               ref={textareaRef}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
-                !hasIndexed
-                  ? 'Upload and process a document first...'
-                  : 'Ask anything about your sources...'
+                hasIndexed
+                  ? "Ask a question..."
+                  : "Upload documents to start"
               }
               disabled={!hasIndexed}
               rows={1}
+              aria-label="Chat message input"
+              aria-disabled={!hasIndexed}
               style={{
                 flex: 1,
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                fontSize: 14,
-                color: '#EEEEEE',
-                resize: 'none',
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                fontSize: isMobile ? 16 : 14,
+                color: "var(--text-primary)",
+                resize: "none",
                 maxHeight: 120,
                 lineHeight: 1.5,
-                fontFamily: 'inherit',
-                padding: 0,
-                margin: 0,
+                fontFamily: "inherit",
               }}
             />
+
             {isStreaming ? (
               <button
-                type="button"
                 onClick={stopStreaming}
+                type="button"
+                aria-label="Stop generating response"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  border: 'none',
-                  background: 'rgba(248,113,113,0.2)',
-                  color: '#f87171',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  width: isMobile ? 44 : 38,
+                  height: isMobile ? 44 : 38,
+                  borderRadius: 10,
+                  border: "none",
+                  background: "rgba(185, 74, 72, 0.15)",
+                  color: "var(--destructive)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.15s",
                   flexShrink: 0,
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(185, 74, 72, 0.25)"
+                  e.currentTarget.style.transform = "scale(1.05)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(185, 74, 72, 0.15)"
+                  e.currentTarget.style.transform = "scale(1)"
+                }}
               >
-                <Square size={16} fill="currentColor" />
+                <Square size={isMobile ? 20 : 18} fill="currentColor" aria-hidden="true" />
               </button>
             ) : (
               <button
-                type="button"
                 onClick={handleSend}
+                type="button"
                 disabled={!inputValue.trim() || !hasIndexed}
+                aria-label="Send message"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  border: 'none',
-                  background: inputValue.trim() && hasIndexed ? '#00ADB5' : '#4A4F5A',
-                  color: inputValue.trim() && hasIndexed ? '#222831' : '#666666',
-                  cursor: inputValue.trim() && hasIndexed ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.15s',
+                  width: isMobile ? 44 : 38,
+                  height: isMobile ? 44 : 38,
+                  borderRadius: 10,
+                  border: "none",
+                  background:
+                    inputValue.trim() && hasIndexed
+                      ? "var(--accent)"
+                      : "var(--bg-surface)",
+                  color:
+                    inputValue.trim() && hasIndexed
+                      ? "var(--primary-foreground)"
+                      : "var(--text-muted)",
+                  cursor:
+                    inputValue.trim() && hasIndexed ? "pointer" : "not-allowed",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.15s",
                   flexShrink: 0,
                 }}
+                onMouseEnter={(e) => {
+                  if (inputValue.trim() && hasIndexed) {
+                    e.currentTarget.style.transform = "scale(1.05)"
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 12px rgba(122, 158, 126, 0.3)"
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)"
+                  e.currentTarget.style.boxShadow = "none"
+                }}
               >
-                <Send size={16} />
+                <Send size={isMobile ? 20 : 18} aria-hidden="true" />
               </button>
             )}
           </div>
-          <p style={{
-            fontSize: 11,
-            color: '#888888',
-            textAlign: 'center',
-            marginTop: 10,
-          }}>
-            Groq · llama-3.3-70b-versatile · RAG via Qdrant (1024d) · {selectedSourceIds.length || 'All'} sources selected
+
+          <p
+            style={{
+              fontSize: isMobile ? 12 : 11,
+              color: "var(--text-muted)",
+              textAlign: "center",
+              marginTop: 12,
+            }}
+          >
+            AI-generated responses may be inaccurate. Verify important
+            information.
           </p>
         </div>
       </div>
     </div>
-  );
+  )
 }

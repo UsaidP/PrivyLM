@@ -1,29 +1,9 @@
-import { clsx, type ClassValue } from "clsx"
+import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // // index.ts
 // // Query your database using the Prisma Client
@@ -59,4 +39,3 @@ export function cn(...inputs: ClassValue[]) {
 //     await prisma.$disconnect();
 //     process.exit(1);
 //   });
-

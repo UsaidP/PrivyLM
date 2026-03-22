@@ -2,13 +2,8 @@ import { Router } from "express";
 import { prisma } from "../../lib/prisma.js";
 import { asyncHandler } from "../../utils/async-handler.js";
 import {
-  createSession,
-  getSession,
-  getSessions,
   addMessage,
   getHistory,
-  updateSessionTitle,
-  deleteSession,
   getMessageCount,
   generateTitle,
 } from "../../services/chatSessionService.js";
@@ -42,12 +37,51 @@ const getOrCreateUser = async (clerkUserId) => {
 };
 
 /**
+ * One session per notebook — get or create it automatically.
+ * No session ID needed from the client.
+ */
+const getOrCreateNotebookSession = async (notebookId, userId) => {
+  const existing = await prisma.chatSession.findFirst({
+    where: { notebookId, userId },
+    orderBy: { createdAt: "asc" }, // always use the first/only session
+  });
+  if (existing) return existing;
+
+  return prisma.chatSession.create({ data: { notebookId, userId } });
+};
+
+/**
+ * GET /api/chat/:notebookId/history
+ * Returns full chat history for this notebook
+ */
+router.get("/:notebookId/history", asyncHandler(async (req, res) => {
+  const { notebookId } = req.params;
+  const user = await getOrCreateUser(req.userId);
+
+  const notebook = await prisma.notebook.findFirst({
+    where: { id: notebookId, userId: user.id }
+  });
+  if (!notebook) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  const session = await getOrCreateNotebookSession(notebookId, user.id);
+
+  const messages = await prisma.chatMessage.findMany({
+    where: { sessionId: session.id },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return res.json({ messages });
+}));
+
+/**
  * POST /api/chat/:notebookId/message
- * Central RAG chat endpoint -> SSE stream
+ * RAG chat — always uses the notebook's single session
  */
 router.post("/:notebookId/message", asyncHandler(async (req, res) => {
   const { notebookId } = req.params;
-  const { message, sessionId, selectedSourceIds } = req.body;
+  const { message, selectedSourceIds } = req.body;
   const clerkUserId = req.userId;
 
   // 1. Validate
@@ -79,16 +113,14 @@ router.post("/:notebookId/message", asyncHandler(async (req, res) => {
     });
   }
 
-  // 5. Get/create session
-  const session = sessionId
-    ? await getSession(sessionId, user.id)
-    : await createSession(notebookId, user.id);
+  // 5. Get/create the one session for this notebook
+  const session = await getOrCreateNotebookSession(notebookId, user.id);
 
   // 6. Persist user message
   await addMessage(session.id, "user", message, null);
 
-  // 7. Get history
-  const history = await getHistory(session.id, 10);
+  // 7. Get full conversation history for LLM context (null = all messages)
+  const history = await getHistory(session.id, null);
 
   // 8. Set SSE headers
   res.setHeader("Content-Type", "text/event-stream");
@@ -116,77 +148,37 @@ router.post("/:notebookId/message", asyncHandler(async (req, res) => {
   if (msgCount === 2 && !session.title) {
     // 1 User + 1 Assistant = 2
     const title = await generateTitle(message);
-    await updateSessionTitle(session.id, title);
+    await prisma.chatSession.update({
+      where: { id: session.id },
+      data: { title }
+    });
   }
 
   res.end(); // Properly close the response when done
 }));
 
 /**
- * POST /api/chat/:notebookId/sessions
- * Create session manually
+ * DELETE /api/chat/:notebookId/history
+ * Clears chat history for this notebook (keeps the session, deletes messages)
  */
-router.post("/:notebookId/sessions", asyncHandler(async (req, res) => {
+router.delete("/:notebookId/history", asyncHandler(async (req, res) => {
   const { notebookId } = req.params;
-  const clerkUserId = req.userId;
-
-  const user = await getOrCreateUser(clerkUserId);
+  const user = await getOrCreateUser(req.userId);
 
   const notebook = await prisma.notebook.findFirst({
-    where: { id: notebookId, userId: user.id },
+    where: { id: notebookId, userId: user.id }
   });
   if (!notebook) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  const session = await createSession(notebookId, user.id);
-  return res.json(session);
-}));
-
-/**
- * GET /api/chat/:notebookId/sessions
- * List sessions
- */
-router.get("/:notebookId/sessions", asyncHandler(async (req, res) => {
-  const { notebookId } = req.params;
-  const clerkUserId = req.userId;
-
-  const user = await getOrCreateUser(clerkUserId);
-
-  const sessions = await getSessions(notebookId, user.id);
-  return res.json(sessions);
-}));
-
-/**
- * GET /api/chat/sessions/:sessionId
- * Get session with its message history
- */
-router.get("/sessions/:sessionId", asyncHandler(async (req, res) => {
-  const { sessionId } = req.params;
-  const clerkUserId = req.userId;
-
-  const user = await getOrCreateUser(clerkUserId);
-
-  const session = await getSession(sessionId, user.id);
-  const messages = await prisma.chatMessage.findMany({
-    where: { sessionId },
-    orderBy: { createdAt: "asc" }
+  const session = await prisma.chatSession.findFirst({
+    where: { notebookId, userId: user.id }
   });
+  if (session) {
+    await prisma.chatMessage.deleteMany({ where: { sessionId: session.id } });
+  }
 
-  return res.json({ session, messages });
-}));
-
-/**
- * DELETE /api/chat/sessions/:sessionId
- * Delete session entirely
- */
-router.delete("/sessions/:sessionId", asyncHandler(async (req, res) => {
-  const { sessionId } = req.params;
-  const clerkUserId = req.userId;
-
-  const user = await getOrCreateUser(clerkUserId);
-
-  await deleteSession(sessionId, user.id);
   return res.json({ success: true });
 }));
 

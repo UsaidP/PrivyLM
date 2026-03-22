@@ -1,27 +1,34 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
+import React from "react"
+import ReactMarkdown from "react-markdown"
+import rehypeHighlight from "rehype-highlight"
+import remarkGfm from "remark-gfm"
 
 export const MarkdownMessage = ({ content }: { content: string }) => {
   return (
-    <div className="assistant-message" style={{
-      fontSize: '14px',
-      lineHeight: 1.7,
-      color: 'var(--text-primary)',
-      paddingLeft: '26px',
-    }}>
-      <ReactMarkdown 
+    <div
+      className="assistant-message"
+      style={{
+        fontSize: "14px",
+        lineHeight: 1.7,
+        color: "var(--text-primary)",
+        paddingLeft: "26px",
+      }}
+    >
+      <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
         components={{
           // Custom renderer for citation links [1], [2]
           a: ({ node, ...props }) => {
             if (props.href?.match(/^#\d+$/)) {
-              return <sup style={{ color: 'var(--accent)', fontWeight: 600 }}>{props.children}</sup>;
+              return (
+                <sup style={{ color: "var(--accent)", fontWeight: 600 }}>
+                  {props.children}
+                </sup>
+              )
             }
-            return <a {...props} />;
-          }
+            return <a {...props} />
+          },
         }}
       >
         {content}
@@ -42,5 +49,5 @@ export const MarkdownMessage = ({ content }: { content: string }) => {
         .assistant-message th, .assistant-message td { border: 1px solid var(--border-default); padding: 8px 12px; }
       `}</style>
     </div>
-  );
-};
+  )
+}

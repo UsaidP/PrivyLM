@@ -1,38 +1,49 @@
-import type { Metadata } from "next";
-import { ClerkProvider, } from '@clerk/nextjs'
-import { dark, neobrutalism } from '@clerk/ui/themes'
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { cn } from "@/lib/utils";
-import ThemeProvider from "@/components/ui/theme_provider";
-import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "@/components/Providers";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ClerkProvider } from "@clerk/nextjs"
+import { dark, neobrutalism } from "@clerk/ui/themes"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { Providers } from "@/components/Providers"
+import { Toaster } from "@/components/ui/sonner"
+import ThemeProvider from "@/components/ui/theme_provider"
+import { cn } from "@/lib/utils"
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-});
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "PDF Research Assistant",
   description: "AI-powered PDF research tool",
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider appearance={{
-      theme: dark,
-      signIn: { theme: neobrutalism },
-    }}>
-      <html lang="en" className={cn(inter.variable, "font-sans")} suppressHydrationWarning>
+    <ClerkProvider
+      appearance={{
+        theme: dark,
+        signIn: { theme: neobrutalism },
+      }}
+    >
+      <html
+        lang="en"
+        className={cn(inter.variable, "font-sans")}
+        suppressHydrationWarning
+      >
         <body className={`${inter.className} antialiased`}>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
             <ErrorBoundary>
               <Providers>
                 {children}
@@ -41,7 +52,7 @@ export default function RootLayout({
             </ErrorBoundary>
           </ThemeProvider>
         </body>
-      </html >
+      </html>
     </ClerkProvider>
-  );
+  )
 }

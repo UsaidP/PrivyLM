@@ -1,7 +1,7 @@
-import { Webhook } from 'svix';
-import { headers } from 'next/headers';
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { headers } from "next/headers"
+import { NextResponse } from "next/server"
+import { Webhook } from "svix"
+import { prisma } from "@/lib/prisma"
 
 /**
  * Clerk Webhook Handler
@@ -9,106 +9,118 @@ import { prisma } from '@/lib/prisma';
  * Handles: user.created, user.updated, user.deleted
  */
 
-const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
+const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
 async function validateRequest(request: Request) {
   if (!WEBHOOK_SECRET) {
-    throw new Error('CLERK_WEBHOOK_SECRET is not set');
+    throw new Error("CLERK_WEBHOOK_SECRET is not set")
   }
 
-  const headerPayload = await headers();
-  const svix_id = headerPayload.get('svix-id');
-  const svix_timestamp = headerPayload.get('svix-timestamp');
-  const svix_signature = headerPayload.get('svix-signature');
+  const headerPayload = await headers()
+  const svix_id = headerPayload.get("svix-id")
+  const svix_timestamp = headerPayload.get("svix-timestamp")
+  const svix_signature = headerPayload.get("svix-signature")
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    throw new Error('Missing Svix headers');
+    throw new Error("Missing Svix headers")
   }
 
-  const payload = await request.json();
-  const body = JSON.stringify(payload);
+  const body = await request.text()
 
-  const wh = new Webhook(WEBHOOK_SECRET);
+  const wh = new Webhook(WEBHOOK_SECRET)
 
-  return wh.verify(body, {
-    'svix-id': svix_id,
-    'svix-timestamp': svix_timestamp,
-    'svix-signature': svix_signature,
+  const payload = wh.verify(body, {
+    "svix-id": svix_id,
+    "svix-timestamp": svix_timestamp,
+    "svix-signature": svix_signature,
   }) as {
-    type: string;
+    type: string
     data: {
-      id: string;
-      email_addresses: Array<{ email_address: string }>;
-      first_name?: string;
-      last_name?: string;
-      image_url?: string;
-    };
-  };
+      id: string
+      email_addresses: Array<{ email_address: string }>
+      first_name?: string
+      last_name?: string
+      image_url?: string
+    }
+  }
+
+  return { payload, body }
 }
 
 export async function POST(request: Request) {
   try {
-    const evt = await validateRequest(request);
-    const { type, data } = evt;
+    const { payload } = await validateRequest(request)
+    const { type, data } = payload
 
-    console.log(`[Clerk Webhook] Received event: ${type}`);
+    console.log(`[Clerk Webhook] Received event: ${type}`)
 
     switch (type) {
-      case 'user.created': {
-        const email = data.email_addresses[0]?.email_address;
+      case "user.created": {
+        const email = data.email_addresses[0]?.email_address
         if (!email) {
-          throw new Error('User created without email');
+          throw new Error("User created without email")
         }
 
         const user = await prisma.user.create({
           data: {
             clerkUserId: data.id,
             email: email,
-            name: [data.first_name, data.last_name].filter(Boolean).join(' ') || null,
+            name:
+              [data.first_name, data.last_name].filter(Boolean).join(" ") ||
+              null,
             imageUrl: data.image_url || null,
           },
-        });
+        })
 
-        console.log(`[Clerk Webhook] Created user: ${user.id}`);
-        break;
+        console.log(`[Clerk Webhook] Created user: ${user.id}`)
+        break
       }
 
-      case 'user.updated': {
-        const email = data.email_addresses[0]?.email_address;
+      case "user.updated": {
+        const email = data.email_addresses[0]?.email_address
+
+        const updateData: Record<string, unknown> = {
+          name:
+            [data.first_name, data.last_name].filter(Boolean).join(" ") ||
+            null,
+          imageUrl: data.image_url || null,
+        }
+
+        // Only include email if it exists
+        if (email) {
+          updateData.email = email
+        }
 
         const user = await prisma.user.update({
           where: { clerkUserId: data.id },
-          data: {
-            email: email,
-            name: [data.first_name, data.last_name].filter(Boolean).join(' ') || null,
-            imageUrl: data.image_url || null,
-          },
-        });
+          data: updateData,
+        })
 
-        console.log(`[Clerk Webhook] Updated user: ${user.id}`);
-        break;
+        console.log(`[Clerk Webhook] Updated user: ${user.id}`)
+        break
       }
 
-      case 'user.deleted': {
+      case "user.deleted": {
         await prisma.user.deleteMany({
           where: { clerkUserId: data.id },
-        });
+        })
 
-        console.log(`[Clerk Webhook] Deleted user: ${data.id}`);
-        break;
+        console.log(`[Clerk Webhook] Deleted user: ${data.id}`)
+        break
       }
 
       default:
-        console.log(`[Clerk Webhook] Unhandled event type: ${type}`);
+        console.log(`[Clerk Webhook] Unhandled event type: ${type}`)
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[Clerk Webhook] Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("[Clerk Webhook] Error:", error)
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error"
     return NextResponse.json(
       { success: false, error: errorMessage },
       { status: 400 }
-    );
+    )
   }
 }

@@ -1,14 +1,14 @@
 import { EMBED_CONFIG, validateVectorDimension } from "../config/vector-config.js";
 
 // Use Perplexity AI embeddings API (1024 dimensions)
-const EMBED_API_URL = process.env.EMBED_API_URL || "https://kimbery-grippier-renownedly.ngrok-free.dev";
-const EMBED_MODEL = process.env.EMBED_MODEL || "pplx-embed-v1-0.6b"; // 1024 dimensions
+const EMBED_API_URL = process.env.EMBED_API_URL || "https://arkammulla--privylm-embeddings-embeddingserver-embed.modal.run";
+const EMBED_MODEL = process.env.EMBED_MODEL || "pplx-embed-v1"; // 1024 dimensions
 
 // ─── Embed multiple texts ────────────────────────────────────────────────────
 export const embedTexts = async (texts) => {
   const embeddings = await Promise.all(
     texts.map(async (text) => {
-      const res = await fetch(`${EMBED_API_URL}/v1/embeddings`, {
+      const res = await fetch(EMBED_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

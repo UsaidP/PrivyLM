@@ -189,18 +189,19 @@ export async function addMessage(sessionId, role, content, sources = null) {
 
 /**
  * Returns the last `limit` messages in chronological order.
+ * If limit is not provided or is null, returns all messages.
  */
 export async function getHistory(sessionId, limit = DEFAULT_HISTORY_LIMIT) {
   assertString(sessionId, "sessionId");
 
-  if (!Number.isInteger(limit) || limit < 1) {
-    throw new ValidationError("limit must be a positive integer");
+  if (limit !== null && (!Number.isInteger(limit) || limit < 1)) {
+    throw new ValidationError("limit must be a positive integer or null");
   }
 
   const messages = await prisma.chatMessage.findMany({
     where: { sessionId },
     orderBy: { createdAt: "desc" },
-    take: limit,
+    ...(limit !== null && { take: limit }),
   });
 
   return messages.reverse().map((m) => ({
