@@ -376,19 +376,15 @@ body {
   }
 }
 
-/* Mobile-friendly touch targets */
+/* Mobile-friendly touch targets - scoped utility class */
 @media (max-width: 768px) {
 
-  button,
-  input,
-  select,
-  textarea {
-    min-height: 44px;
-  }
-
-  /* Increase tap targets for mobile */
-  a,
-  button {
+  /* Apply .touch-target class to elements that need larger tap targets */
+  .touch-target,
+  .touch-target button,
+  .touch-target input,
+  .touch-target select,
+  .touch-target textarea {
     min-width: 44px;
     min-height: 44px;
   }

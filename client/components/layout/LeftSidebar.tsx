@@ -355,8 +355,16 @@ function UserProfile() {
       {showMenu && (
         <>
           <div
-            style={{ position: "fixed", inset: 0, zIndex: 99 }}
+            role="button"
+            tabIndex={0}
             onClick={() => setShowMenu(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                setShowMenu(false)
+              }
+            }}
+            style={{ position: "fixed", inset: 0, zIndex: 99 }}
           />
           <div
             style={{
@@ -694,7 +702,16 @@ export function LeftSidebar({ notebookId, isMobile = false, onClose }: LeftSideb
         {/* Drop zone — only shown when docs exist */}
         {docCount > 0 && (
           <div
+            role="button"
+            tabIndex={0}
+            aria-label="Upload PDF"
             onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
             onDragOver={(e) => {
               e.preventDefault()
               setIsDragging(true)

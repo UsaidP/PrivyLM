@@ -50,19 +50,10 @@ function SessionItem({
 }) {
   const [showDelete, setShowDelete] = useState(false)
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault()
-      onSelect()
-    }
-  }
-
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={onSelect}
-      onKeyDown={handleKeyDown}
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
       style={{
@@ -77,6 +68,10 @@ function SessionItem({
           : "3px solid transparent",
         transition: "background 0.1s",
         position: "relative",
+        border: "none",
+        width: "100%",
+        textAlign: "left",
+        appearance: "none",
       }}
     >
       {/* Avatar */}
@@ -172,7 +167,7 @@ function SessionItem({
           <Trash2 size={12} />
         </button>
       )}
-    </div>
+    </button>
   )
 }
 
@@ -206,6 +201,7 @@ export function SessionSidebar({
       onSelectSession(session.id)
     } catch (err) {
       console.error("Failed to create session:", err)
+      toast.error("Failed to create session")
     }
   }
 

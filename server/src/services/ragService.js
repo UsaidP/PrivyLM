@@ -1,6 +1,6 @@
-import { embedQuery } from "./embeddings.js"
-import { searchVectors, getCollectionName } from "./qdrant.js"
 import { streamGroqResponse } from "../lib/groq.js"
+import { embedQuery } from "./embeddings.js"
+import { getCollectionName, searchVectors } from "./qdrant.js"
 
 const SYSTEM_PROMPT = `You are an expert research assistant, similar to Google NotebookLM. Your role is to help users analyze documents, extract insights, and answer questions based on the provided sources.
 
@@ -30,107 +30,134 @@ CONTEXT:
  * - Format the context chunks and history
  * - Stream the Groq LLM response through the provided Response object via SSE
  */
-export const chat = async ({ message, notebookId, userId, sessionId, history, selectedSourceIds, res }) => {
+export const chat = async ({
+  message,
+  notebookId,
+  userId,
+  sessionId,
+  history,
+  selectedSourceIds,
+  res,
+}) => {
   // 1. Embed the user's message
-  const queryVector = await embedQuery(message);
+  const queryVector = await embedQuery(message)
 
   // 2. Search Qdrant
-  const collectionName = getCollectionName(userId, notebookId);
+  const collectionName = getCollectionName(userId, notebookId)
 
   // Build filter if selectedSourceIds provided
-  let filter = undefined;
+  let filter
   if (selectedSourceIds && selectedSourceIds.length > 0) {
     filter = {
       must: [
         {
           key: "metadata.documentId",
-          match: { any: selectedSourceIds }
-        }
-      ]
-    };
+          match: { any: selectedSourceIds },
+        },
+      ],
+    }
   }
 
-  console.log(`[RAG] Query: "${message.slice(0, 60)}..."`);
-  console.log(`[RAG] Collection: ${collectionName}`);
-  console.log(`[RAG] Source filter: ${selectedSourceIds?.length ? selectedSourceIds.join(", ") : "none (all docs)"}`);
+  console.log(`[RAG] Query: "${message.slice(0, 60)}..."`)
+  console.log(`[RAG] Collection: ${collectionName}`)
+  console.log(
+    `[RAG] Source filter: ${selectedSourceIds?.length ? selectedSourceIds.join(", ") : "none (all docs)"}`
+  )
 
   const searchResults = await searchVectors(
     collectionName,
     queryVector,
     8, // Limit chunks
     filter
-  );
+  )
 
-  console.log(`[RAG] Raw results: ${searchResults.length}, scores: ${searchResults.map(r => r.score.toFixed(3)).join(", ")}`);
+  // Configurable relevance threshold (default 0.5, validated between 0 and 1)
+  const relevanceThreshold = Math.min(
+    1,
+    Math.max(0, parseFloat(process.env.RAG_RELEVANCE_THRESHOLD ?? "0.5") || 0.5)
+  )
+  console.log(
+    `[RAG] Raw results: ${searchResults.length}, scores: ${searchResults.map((r) => r.score.toFixed(3)).join(", ")}`
+  )
+  console.log(`[RAG] Using relevance threshold: ${relevanceThreshold}`)
 
-  // FIX: raised threshold from 0.3 → 0.5 for pplx-embed cosine similarity
-  const filteredChunks = searchResults.filter(result => result.score >= 0.5);
+  const filteredChunks = searchResults.filter(
+    (result) => result.score >= relevanceThreshold
+  )
 
-  console.log(`[RAG] After threshold (≥0.5): ${filteredChunks.length} chunks`);
+  console.log(
+    `[RAG] After threshold (≥${relevanceThreshold}): ${filteredChunks.length} chunks`
+  )
 
   // 3. Deduplicate chunks (by documentId + chunk index or text to avoid redundant context)
-  const uniqueChunks = [];
-  const seenTexts = new Set();
+  const uniqueChunks = []
+  const seenTexts = new Set()
 
-  const sources = [];
+  const sources = []
 
   for (const chunk of filteredChunks) {
-    const text = chunk.payload.pageContent;
+    const text = chunk.payload.pageContent
     if (!seenTexts.has(text)) {
-      seenTexts.add(text);
-      uniqueChunks.push(chunk);
+      seenTexts.add(text)
+      uniqueChunks.push(chunk)
 
-      // Extract metadata for sources 
+      // Extract metadata for sources
       sources.push({
         documentId: chunk.payload.metadata.documentId,
         documentName: chunk.payload.metadata.fileName || "Document",
         page: chunk.payload.metadata.pageNumber || null,
         score: chunk.score,
-        text: text.substring(0, 150) + "..." // Snippet for the UI
-      });
+        text: text.substring(0, 150) + "...", // Snippet for the UI
+      })
     }
   }
 
   // Handle case when no relevant chunks found
   if (uniqueChunks.length === 0) {
-    res.write(`data: ${JSON.stringify({ type: "token", content: "I couldn't find relevant information in the selected documents for that question. Try selecting different sources or rephrasing your query." })}\n\n`);
-    res.write(`data: ${JSON.stringify({ type: "sources", sources: [] })}\n\n`);
-    res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
-    res.end();
-    return { fullResponse: "", sources: [] };
+    res.write(
+      `data: ${JSON.stringify({ type: "token", content: "I couldn't find relevant information in the selected documents for that question. Try selecting different sources or rephrasing your query." })}\n\n`
+    )
+    res.write(`data: ${JSON.stringify({ type: "sources", sources: [] })}\n\n`)
+    res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`)
+    res.end()
+    return { fullResponse: "", sources: [] }
   }
 
   // Build the context string
-  let contextString = "";
+  let contextString = ""
   uniqueChunks.forEach((chunk, idx) => {
-    const name = chunk.payload.metadata.fileName || "Unnamed";
-    const page = chunk.payload.metadata.pageNumber ? ` p.${chunk.payload.metadata.pageNumber}` : "";
-    contextString += `\n\n[${idx + 1}] ${name}${page} (relevance: ${chunk.score.toFixed(2)})\n`;
-    contextString += chunk.payload.pageContent;
-  });
+    const name = chunk.payload.metadata.fileName || "Unnamed"
+    const page = chunk.payload.metadata.pageNumber
+      ? ` p.${chunk.payload.metadata.pageNumber}`
+      : ""
+    contextString += `\n\n[${idx + 1}] ${name}${page} (relevance: ${chunk.score.toFixed(2)})\n`
+    contextString += chunk.payload.pageContent
+  })
 
   // 4. Build messages array for the LLM
   const messages = [
     { role: "system", content: SYSTEM_PROMPT + contextString },
     ...history,
-    { role: "user", content: message }
-  ];
+    { role: "user", content: message },
+  ]
 
   // 5. Stream from Groq to the client
   try {
-    const fullResponse = await streamGroqResponse(messages, res);
+    const fullResponse = await streamGroqResponse(messages, res)
 
     // 6. Send the sources after the last token
-    res.write(`data: ${JSON.stringify({ type: "sources", sources })}\n\n`);
+    res.write(`data: ${JSON.stringify({ type: "sources", sources })}\n\n`)
 
     // 7. Send the done signal
-    res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
+    res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`)
 
-    return { fullResponse, sources };
+    return { fullResponse, sources }
   } catch (err) {
-    console.error("LLM streaming error:", err);
-    res.write(`data: ${JSON.stringify({ type: "error", message: "Failed to generate response." })}\n\n`);
-    res.end();
-    throw err;
+    console.error("LLM streaming error:", err)
+    res.write(
+      `data: ${JSON.stringify({ type: "error", message: "Failed to generate response." })}\n\n`
+    )
+    res.end()
+    throw err
   }
 }

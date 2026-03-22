@@ -3,7 +3,15 @@ import { PrismaClient } from "@prisma/client"
 import pg from "pg"
 
 // Prisma 7 requires an adapter for direct database connections
-const connectionString = process.env.DATABASE_URL
+// Validate and fallback the DATABASE_URL
+const connectionString = process.env.DATABASE_URL ?? process.env.DB_URL
+
+if (!connectionString) {
+  throw new Error(
+    "DATABASE_URL or DB_URL environment variable is required. Please set one of these environment variables."
+  )
+}
+
 const pool = new pg.Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 

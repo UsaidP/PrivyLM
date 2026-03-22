@@ -452,9 +452,8 @@ function SourceCitationBubble({
   }
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       aria-expanded={open}
       onClick={() => setOpen(v => !v)}
       onKeyDown={handleKeyDown}
@@ -470,6 +469,7 @@ function SourceCitationBubble({
         transition: 'all 0.15s ease',
         fontSize: 11,
         maxWidth: '100%',
+        appearance: 'none',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = "var(--accent-muted)"
@@ -557,7 +557,7 @@ function SourceCitationBubble({
           &ldquo;{source.text}&rdquo;
         </div>
       )}
-    </div>
+    </button>
   )
 }
 

@@ -12,7 +12,9 @@ export async function POST(req: Request) {
 
     // Parse the request body
     const body = await req.json()
-    const { name, description } = body
+    // Accept both 'title' (from client) and 'name' (legacy)
+    const name = body.name ?? body.title
+    const description = body.description
 
     if (!name || typeof name !== "string") {
       return NextResponse.json({ error: "Name is required" }, { status: 400 })

@@ -60,6 +60,20 @@ export default function SettingsPage() {
     language: "en",
   })
 
+  // Load preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("user-preferences")
+      if (saved) {
+        try {
+          setPreferences(JSON.parse(saved))
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+  }, [])
+
   // Sync formData when user data loads
   useEffect(() => {
     if (user) {
@@ -137,9 +151,12 @@ export default function SettingsPage() {
 
   // Handle preference changes
   const handlePreferenceChange = async (key: string, value: unknown) => {
-    setPreferences((prev) => ({ ...prev, [key]: value }))
-    // In production, save to user preferences in database
-    addToast("success", "Preference updated")
+    const newPreferences = { ...preferences, [key]: value }
+    setPreferences(newPreferences)
+    // Persist to localStorage
+    if (typeof window !== "undefined") {
+      localStorage.setItem("user-preferences", JSON.stringify(newPreferences))
+    }
   }
 
   // Format date

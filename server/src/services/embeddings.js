@@ -2,7 +2,7 @@ import { EMBED_CONFIG, validateVectorDimension } from "../config/vector-config.j
 
 // Use Perplexity AI embeddings API (1024 dimensions)
 const EMBED_API_URL = process.env.EMBED_API_URL || "https://arkammulla--privylm-embeddings-embeddingserver-embed.modal.run";
-const EMBED_MODEL = process.env.EMBED_MODEL || "pplx-embed-v1"; // 1024 dimensions
+const EMBED_MODEL = process.env.EMBED_MODEL || "pplx-embed-v1-0.6b"; // 1024 dimensions
 
 // ─── Embed multiple texts ────────────────────────────────────────────────────
 export const embedTexts = async (texts) => {

@@ -26,12 +26,13 @@ export interface SessionWithMessages {
   messages: ChatMessage[]
 }
 
-async function fetchSessions(
+// Fetch chat history for a notebook
+async function fetchHistory(
   notebookId: string,
   token: string | null
-): Promise<ChatSession[]> {
+): Promise<SessionWithMessages> {
   const res = await axios.get(
-    `${API_BASE_URL}/api/chat/${notebookId}/sessions`,
+    `${API_BASE_URL}/api/chat/${notebookId}/history`,
     {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     }
@@ -39,6 +40,33 @@ async function fetchSessions(
   return res.data
 }
 
+// Post a message to a notebook chat
+async function postMessage(
+  notebookId: string,
+  token: string | null,
+  message: string
+): Promise<ChatMessage> {
+  const res = await axios.post(
+    `${API_BASE_URL}/api/chat/${notebookId}/message`,
+    { message },
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }
+  )
+  return res.data
+}
+
+// Clear chat history for a notebook
+async function clearHistory(
+  notebookId: string,
+  token: string | null
+): Promise<void> {
+  await axios.delete(`${API_BASE_URL}/api/chat/${notebookId}/history`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+}
+
+// Fetch a single session by ID (legacy support)
 async function fetchSession(
   sessionId: string,
   token: string | null
@@ -52,37 +80,14 @@ async function fetchSession(
   return res.data
 }
 
-async function createSession(
-  notebookId: string,
-  token: string | null
-): Promise<ChatSession> {
-  const res = await axios.post(
-    `${API_BASE_URL}/api/chat/${notebookId}/sessions`,
-    {},
-    {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }
-  )
-  return res.data
-}
-
-async function deleteSession(
-  sessionId: string,
-  token: string | null
-): Promise<void> {
-  await axios.delete(`${API_BASE_URL}/api/chat/sessions/${sessionId}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  })
-}
-
 export function useSessions(notebookId: string) {
   const { getToken } = useAuth()
 
   return useQuery({
-    queryKey: ["sessions", notebookId],
+    queryKey: ["history", notebookId],
     queryFn: async () => {
       const token = await getToken()
-      return fetchSessions(notebookId, token)
+      return fetchHistory(notebookId, token)
     },
     enabled: !!notebookId,
     staleTime: 30_000,
@@ -107,30 +112,27 @@ export function useSessionMutations(notebookId: string) {
   const queryClient = useQueryClient()
   const { getToken } = useAuth()
 
-  const create = useMutation({
-    mutationFn: async () => {
+  const post = useMutation({
+    mutationFn: async (message: string) => {
       const token = await getToken()
-      return createSession(notebookId, token)
-    },
-    onSuccess: (newSession) => {
-      queryClient.invalidateQueries({ queryKey: ["sessions", notebookId] })
+      return postMessage(notebookId, token, message)
     },
   })
 
-  const remove = useMutation({
-    mutationFn: async (sessionId: string) => {
+  const clear = useMutation({
+    mutationFn: async () => {
       const token = await getToken()
-      await deleteSession(sessionId, token)
+      await clearHistory(notebookId, token)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sessions", notebookId] })
+      queryClient.invalidateQueries({ queryKey: ["history", notebookId] })
     },
   })
 
   return {
-    createSession: create.mutateAsync,
-    deleteSession: remove.mutateAsync,
-    isCreating: create.isPending,
-    isDeleting: remove.isPending,
+    postMessage: post.mutateAsync,
+    clearHistory: clear.mutateAsync,
+    isPosting: post.isPending,
+    isClearing: clear.isPending,
   }
 }

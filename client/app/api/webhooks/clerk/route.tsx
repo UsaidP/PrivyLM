@@ -52,7 +52,11 @@ export async function POST(request: Request) {
     const { payload } = await validateRequest(request)
     const { type, data } = payload
 
-    console.log(`[Clerk Webhook] Received event: ${type}`)
+    // Privacy-safe logging: only log non-identifying fields
+    const isDebug = process.env.NODE_ENV === "development"
+    if (isDebug) {
+      console.log(`[Clerk Webhook] Received event: ${type}`)
+    }
 
     switch (type) {
       case "user.created": {
@@ -72,7 +76,9 @@ export async function POST(request: Request) {
           },
         })
 
-        console.log(`[Clerk Webhook] Created user: ${user.id}`)
+        if (isDebug) {
+          console.log(`[Clerk Webhook] Created user (eventType: ${type})`)
+        }
         break
       }
 
@@ -96,7 +102,9 @@ export async function POST(request: Request) {
           data: updateData,
         })
 
-        console.log(`[Clerk Webhook] Updated user: ${user.id}`)
+        if (isDebug) {
+          console.log(`[Clerk Webhook] Updated user (eventType: ${type})`)
+        }
         break
       }
 
@@ -105,17 +113,27 @@ export async function POST(request: Request) {
           where: { clerkUserId: data.id },
         })
 
-        console.log(`[Clerk Webhook] Deleted user: ${data.id}`)
+        if (isDebug) {
+          console.log(`[Clerk Webhook] Deleted user (eventType: ${type})`)
+        }
         break
       }
 
       default:
-        console.log(`[Clerk Webhook] Unhandled event type: ${type}`)
+        if (isDebug) {
+          console.log(`[Clerk Webhook] Unhandled event type: ${type}`)
+        }
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[Clerk Webhook] Error:", error)
+    // Log error without exposing user identifiers
+    const isDebug = process.env.NODE_ENV === "development"
+    if (isDebug) {
+      console.error("[Clerk Webhook] Error:", error)
+    } else {
+      console.error("[Clerk Webhook] Error occurred")
+    }
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error"
     return NextResponse.json(

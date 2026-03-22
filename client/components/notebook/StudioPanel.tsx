@@ -1,7 +1,7 @@
 "use client"
 
 import { Clock, FileText, HelpCircle, LayoutList } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Notebook } from "@/hooks/useNotebooks"
 
 interface StudioPanelProps {
@@ -137,12 +137,39 @@ function NotesTab({ notebookId }: { notebookId: string }) {
     { id: string; text: string; createdAt: Date }[]
   >([])
 
+  // Load notes from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(`notes:${notebookId}`)
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved)
+          setNotes(parsed.map((n: { id: string; text: string; createdAt: string }) => ({
+            ...n,
+            createdAt: new Date(n.createdAt),
+          })))
+        } catch {
+          // Ignore parse errors
+        }
+      }
+    }
+  }, [notebookId])
+
+  // Persist notes to localStorage whenever they change
+  const persistNotes = (newNotes: { id: string; text: string; createdAt: Date }[]) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`notes:${notebookId}`, JSON.stringify(newNotes))
+    }
+  }
+
   const addNote = () => {
     if (!text.trim()) return
-    setNotes((prev) => [
+    const newNotes = [
       { id: crypto.randomUUID(), text: text.trim(), createdAt: new Date() },
-      ...prev,
-    ])
+      ...notes,
+    ]
+    setNotes(newNotes)
+    persistNotes(newNotes)
     setText("")
   }
 
