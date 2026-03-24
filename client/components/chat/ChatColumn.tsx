@@ -17,6 +17,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { toast } from "sonner"
 import { type Message, type Source, type UseChatReturn } from "@/hooks/useChat"
 import { useDocuments } from "@/hooks/useDocuments"
 import { useSourceSelection } from "@/hooks/useSourceSelection"
@@ -470,6 +471,7 @@ function SourceCitationBubble({
         fontSize: 11,
         maxWidth: '100%',
         appearance: 'none',
+        position: 'relative',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = "var(--accent-muted)"
@@ -715,6 +717,15 @@ export function ChatColumn({
     ta.style.height = Math.min(ta.scrollHeight, 120) + "px"
   }, [inputValue])
 
+  // Update browser tab title with notebook name
+  useEffect(() => {
+    if (notebookName) {
+      document.title = `${notebookName} — PrivyLM`
+    } else {
+      document.title = "Notebook — PrivyLM"
+    }
+  }, [notebookName])
+
   const handleSend = () => {
     if (inputValue.trim() && hasIndexed) {
       sendMessage(inputValue.trim(), selectedSourceIds)
@@ -738,118 +749,93 @@ export function ChatColumn({
         minHeight: 0,
         background: "var(--bg-primary)",
         overflow: "hidden",
+        position: "relative",
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          height: isMobile ? 60 : 56,
-          background: "var(--bg-secondary)",
-          borderBottom: "1px solid var(--border-default)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: isMobile ? "0 16px" : "0 20px",
-          flexShrink: 0,
-          gap: 12,
-        }}
-      >
-        {/* Left toggle button (mobile) */}
-        {isMobile && onToggleLeft && (
-          <button
-            onClick={onToggleLeft}
-            type="button"
-            aria-label={showLeftSidebar ? "Close conversations" : "Open conversations"}
-            aria-pressed={showLeftSidebar}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              border: "1px solid var(--border-default)",
-              background: showLeftSidebar ? "var(--accent-muted)" : "var(--bg-surface)",
-              color: showLeftSidebar ? "var(--accent)" : "var(--text-secondary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              flexShrink: 0,
-              transition: "all 0.2s ease",
-              boxShadow: showLeftSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none",
-              transform: showLeftSidebar ? "translateY(-1px)" : "translateY(0)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--accent-muted)"
-              e.currentTarget.style.borderColor = "var(--accent)"
-              e.currentTarget.style.transform = "translateY(-2px)"
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(122, 158, 126, 0.2)"
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = showLeftSidebar ? "var(--accent-muted)" : "var(--bg-surface)"
-              e.currentTarget.style.borderColor = "var(--border-default)"
-              e.currentTarget.style.transform = showLeftSidebar ? "translateY(-1px)" : "translateY(0)"
-              e.currentTarget.style.boxShadow = showLeftSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none"
-            }}
-          >
-            <Menu size={20} />
-          </button>
-        )}
-
-        {/* Title */}
-        <span
+      {/* Floating toggle buttons */}
+      {isMobile && onToggleLeft && (
+        <button
+          onClick={onToggleLeft}
+          type="button"
+          aria-label={showLeftSidebar ? "Close conversations" : "Open conversations"}
+          aria-pressed={showLeftSidebar}
           style={{
-            fontSize: isMobile ? 16 : 15,
-            fontWeight: 600,
-            color: "var(--text-primary)",
-            flex: 1,
-            textAlign: isMobile ? "center" : "left",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            position: "absolute",
+            top: 12,
+            left: 12,
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            border: "1px solid var(--border-default)",
+            background: showLeftSidebar ? "var(--accent-muted)" : "var(--bg-surface)",
+            color: showLeftSidebar ? "var(--accent)" : "var(--text-secondary)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            zIndex: 50,
+            transition: "all 0.2s ease",
+            boxShadow: showLeftSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "0 2px 8px rgba(0,0,0,0.1)",
+            transform: showLeftSidebar ? "translateY(0)" : "translateY(0)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--accent-muted)"
+            e.currentTarget.style.borderColor = "var(--accent)"
+            e.currentTarget.style.transform = "translateY(-2px)"
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(122, 158, 126, 0.2)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = showLeftSidebar ? "var(--accent-muted)" : "var(--bg-surface)"
+            e.currentTarget.style.borderColor = "var(--border-default)"
+            e.currentTarget.style.transform = showLeftSidebar ? "translateY(0)" : "translateY(0)"
+            e.currentTarget.style.boxShadow = showLeftSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "0 2px 8px rgba(0,0,0,0.1)"
           }}
         >
-          {notebookName || "Notebook"}
-        </span>
+          <Menu size={20} />
+        </button>
+      )}
 
-        {/* Right toggle button (mobile) */}
-        {isMobile && onToggleRight && (
-          <button
-            onClick={onToggleRight}
-            type="button"
-            aria-label={showRightSidebar ? "Close studio" : "Open studio"}
-            aria-pressed={showRightSidebar}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              border: "1px solid var(--border-default)",
-              background: showRightSidebar ? "var(--accent-muted)" : "var(--bg-surface)",
-              color: showRightSidebar ? "var(--accent)" : "var(--text-secondary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              flexShrink: 0,
-              transition: "all 0.2s ease",
-              boxShadow: showRightSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none",
-              transform: showRightSidebar ? "translateY(-1px)" : "translateY(0)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--accent-muted)"
-              e.currentTarget.style.borderColor = "var(--accent)"
-              e.currentTarget.style.transform = "translateY(-2px)"
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(122, 158, 126, 0.2)"
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = showRightSidebar ? "var(--accent-muted)" : "var(--bg-surface)"
-              e.currentTarget.style.borderColor = "var(--border-default)"
-              e.currentTarget.style.transform = showRightSidebar ? "translateY(-1px)" : "translateY(0)"
-              e.currentTarget.style.boxShadow = showRightSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "none"
-            }}
-          >
-            <PanelRight size={20} />
-          </button>
-        )}
-      </div>
+      {isMobile && onToggleRight && (
+        <button
+          onClick={onToggleRight}
+          type="button"
+          aria-label={showRightSidebar ? "Close studio" : "Open studio"}
+          aria-pressed={showRightSidebar}
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            border: "1px solid var(--border-default)",
+            background: showRightSidebar ? "var(--accent-muted)" : "var(--bg-surface)",
+            color: showRightSidebar ? "var(--accent)" : "var(--text-secondary)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            zIndex: 50,
+            transition: "all 0.2s ease",
+            boxShadow: showRightSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "0 2px 8px rgba(0,0,0,0.1)",
+            transform: showRightSidebar ? "translateY(0)" : "translateY(0)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "var(--accent-muted)"
+            e.currentTarget.style.borderColor = "var(--accent)"
+            e.currentTarget.style.transform = "translateY(-2px)"
+            e.currentTarget.style.boxShadow = "0 4px 12px rgba(122, 158, 126, 0.2)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = showRightSidebar ? "var(--accent-muted)" : "var(--bg-surface)"
+            e.currentTarget.style.borderColor = "var(--border-default)"
+            e.currentTarget.style.transform = showRightSidebar ? "translateY(0)" : "translateY(0)"
+            e.currentTarget.style.boxShadow = showRightSidebar ? "0 2px 8px rgba(122, 158, 126, 0.25)" : "0 2px 8px rgba(0,0,0,0.1)"
+          }}
+        >
+          <PanelRight size={20} />
+        </button>
+      )}
 
       {/* Messages */}
       <div
@@ -857,12 +843,21 @@ export function ChatColumn({
           flex: 1,
           minHeight: 0,
           overflowY: "auto",
-          padding: isMobile ? "16px 12px" : "24px 20px",
+          paddingTop: isMobile ? "70px" : "24px",
+          paddingLeft: isMobile ? "12px" : "20px",
+          paddingRight: isMobile ? "12px" : "20px",
+          paddingBottom: "24px",
         }}
       >
         {messages.length === 0 ? (
           <ChatEmptyState
-            onChipClick={(text) => sendMessage(text, selectedSourceIds)}
+            onChipClick={(text) => {
+              if (hasIndexed) {
+                sendMessage(text, selectedSourceIds)
+              } else {
+                toast.error("Please wait for documents to be indexed before chatting")
+              }
+            }}
           />
         ) : (
           <>

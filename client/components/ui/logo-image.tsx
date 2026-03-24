@@ -11,12 +11,14 @@ interface LogoImageProps {
  * Renders the logo image from the public folder.
  * The image file `logo.jpg` is placed in `public/` and will be served
  * statically by Next.js. The component ensures the logo matches the
- * design system's height and provides a hover opacity effect.
+ * design system's height.
  */
 const LogoImage: React.FC<LogoImageProps> = ({
   size = 28,
   alt = "PrivyLM Logo",
 }) => {
+  const [isHovered, setIsHovered] = React.useState(false)
+
   const style: React.CSSProperties = {
     width: size,
     height: size,
@@ -26,6 +28,7 @@ const LogoImage: React.FC<LogoImageProps> = ({
     overflow: "hidden",
     // Subtle hover effect to match other interactive elements
     transition: "opacity 0.2s",
+    opacity: isHovered ? 0.8 : 1,
   }
 
   return (
@@ -33,7 +36,9 @@ const LogoImage: React.FC<LogoImageProps> = ({
       src="/logo.jpg"
       alt={alt}
       style={style}
-      // Next.js static assets are served from the root, so /logo.jpg works
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    // Next.js static assets are served from the root, so /logo.jpg works
     />
   )
 }

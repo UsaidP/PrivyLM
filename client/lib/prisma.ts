@@ -3,8 +3,8 @@ import { PrismaClient } from "@prisma/client"
 import pg from "pg"
 
 // Prisma 7 requires an adapter for direct database connections
-// Validate and fallback the DATABASE_URL
-const connectionString = process.env.DATABASE_URL ?? process.env.DB_URL
+// Validate and fallback the DATABASE_URL (DB_URL first to match server)
+const connectionString = process.env.DB_URL || process.env.DATABASE_URL
 
 if (!connectionString) {
   throw new Error(

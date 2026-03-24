@@ -4,7 +4,6 @@ import { Clock, FileText, HelpCircle, LayoutList, Loader2, X } from "lucide-reac
 import { useEffect, useRef, useState } from "react"
 
 interface StudioSidebarProps {
-  notebookId: string
   onGenerate: (prompt: string) => void
   isMobile?: boolean
   onClose?: () => void
@@ -62,7 +61,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function StudioSidebar({ notebookId, onGenerate, isMobile = false, onClose }: StudioSidebarProps) {
+export function StudioSidebar({ onGenerate, isMobile = false, onClose }: StudioSidebarProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 

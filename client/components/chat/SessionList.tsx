@@ -205,7 +205,7 @@ export function SessionSidebar({
     }
   }
 
-  const filteredSessions = sessions?.filter((s) =>
+  const filteredSessions = sessions?.filter((s: ChatSession) =>
     (s.title || "New Chat").toLowerCase().includes(searchQuery.toLowerCase())
   )
 

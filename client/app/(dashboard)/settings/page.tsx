@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
+import { ThemeSwitcher } from "@/components/ui/theme-switcher"
 
 interface ProfileFormData {
   firstName: string
@@ -1176,39 +1177,10 @@ export default function SettingsPage() {
               >
                 Theme Mode
               </p>
-              <div style={{ display: "flex", gap: "8px" }}>
-                {["light", "dark", "system"].map((mode) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => handlePreferenceChange("darkMode", mode)}
-                    style={{
-                      flex: 1,
-                      padding: "12px",
-                      borderRadius: "8px",
-                      background:
-                        preferences.darkMode === mode
-                          ? "var(--accent)"
-                          : "var(--bg-surface)",
-                      border: `1px solid ${preferences.darkMode === mode
-                        ? "var(--accent)"
-                        : "var(--border-default)"
-                        }`,
-                      color:
-                        preferences.darkMode === mode
-                          ? "var(--primary-foreground)"
-                          : "var(--text-secondary)",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      textTransform: "capitalize",
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    {mode}
-                  </button>
-                ))}
-              </div>
+              <ThemeSwitcher
+                value={preferences.darkMode}
+                onChange={(value) => handlePreferenceChange("darkMode", value)}
+              />
             </div>
           </div>
         </div>

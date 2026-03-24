@@ -65,10 +65,18 @@ export function useChat(notebookId: string): UseChatReturn {
             timestamp: new Date(m.createdAt),
           }))
           setMessages(history)
+        } else if (response.status === 404 || response.status === 503) {
+          // Endpoint not available or service unavailable - start with empty chat
+          console.log("Chat history not available, starting fresh")
         }
       } catch (err: any) {
         if (err.name !== "AbortError") {
-          console.error("Failed to load chat history:", err)
+          // Only log network errors in development
+          if (process.env.NODE_ENV === "development") {
+            console.log("Chat history not loaded (this is OK for new notebooks):", err.message)
+          }
+          // Start with empty messages on error
+          setMessages([])
         }
       }
     }

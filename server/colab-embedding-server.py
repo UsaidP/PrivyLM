@@ -1,13 +1,22 @@
-!pip install flask pyngrok transformers torch accelerate -q
+# Install dependencies: pip install -r requirements-colab.txt
+# Or in Colab: !pip install -r requirements-colab.txt
 
+import os
 import torch
 from transformers import AutoModel, AutoTokenizer
 from flask import Flask, request, jsonify
 from pyngrok import ngrok
 import traceback
 
-from pyngrok import ngrok
-ngrok.kill()
+# Validate NGROK_TOKEN is set
+NGROK_TOKEN = os.environ.get("NGROK_TOKEN")
+if not NGROK_TOKEN:
+    print("❌ ERROR: NGROK_TOKEN environment variable is required")
+    print("   Set it with: os.environ['NGROK_TOKEN'] = 'your-token-here'")
+    print("   Or export NGROK_TOKEN=your-token-here before running")
+    exit(1)
+
+ngrok.set_auth_token(NGROK_TOKEN)
 
 model_name = "perplexity-ai/pplx-embed-v1-0.6b"
 print(f"Loading model: {model_name}...")
@@ -63,9 +72,12 @@ def embed():
         return jsonify({"error": str(e)}), 500
 
 # NGROK_TOKEN = "3AhGKKN3R0w8aMWm4Y9T7loeD5G_B3DWigWW8ountCEtj9Wi"
-NGROK_TOKEN = "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"
+# NGROK_TOKEN should be set via environment variable or Colab secrets
+# NGROK_TOKEN = "your_ngrok_token_here"
+NGROK_TOKEN = None  # Set via Colab secrets or env var
 
-ngrok.set_auth_token(NGROK_TOKEN)
+if NGROK_TOKEN:
+    ngrok.set_auth_token(NGROK_TOKEN)
 
 try:
     ngrok.kill()

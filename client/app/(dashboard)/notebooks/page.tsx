@@ -24,7 +24,6 @@ interface NotebookWithCounts {
 }
 
 async function getNotebooks(userId: string): Promise<NotebookWithCounts[]> {
-  // Find internal user by clerkUserId
   const user = await prisma.user.findUnique({
     where: { clerkUserId: userId },
   })
@@ -60,13 +59,15 @@ export default async function NotebooksPage() {
         maxWidth: "1200px",
         width: "100%",
         boxSizing: "border-box",
+        overflowY: "auto",
+        flex: 1,
       }}
     >
       {/* Header */}
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "space-between",
           marginBottom: "clamp(24px, 4vw, 32px)",
           gap: "16px",
@@ -88,7 +89,7 @@ export default async function NotebooksPage() {
           <p
             style={{
               fontSize: "14px",
-              color: "var(--text-tertiary)",
+              color: "var(--text-secondary)",
               margin: 0,
             }}
           >
@@ -150,7 +151,7 @@ export default async function NotebooksPage() {
           <p
             style={{
               fontSize: "clamp(14px, 3vw, 15px)",
-              color: "var(--text-tertiary)",
+              color: "var(--text-secondary)",
               margin: "0 0 32px",
               maxWidth: "min(380px, 90vw)",
               lineHeight: 1.6,

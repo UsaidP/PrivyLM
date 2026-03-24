@@ -1,6 +1,6 @@
 "use client"
 
-import { CopyIcon, FileText, LinkIcon, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"

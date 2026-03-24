@@ -139,6 +139,9 @@ function NotesTab({ notebookId }: { notebookId: string }) {
 
   // Load notes from localStorage on mount
   useEffect(() => {
+    // Clear notes first to avoid stale data from previous notebook
+    setNotes([])
+
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(`notes:${notebookId}`)
       if (saved) {
@@ -149,7 +152,8 @@ function NotesTab({ notebookId }: { notebookId: string }) {
             createdAt: new Date(n.createdAt),
           })))
         } catch {
-          // Ignore parse errors
+          // On parse error, keep notes empty
+          setNotes([])
         }
       }
     }

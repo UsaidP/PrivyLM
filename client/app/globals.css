@@ -4,8 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─── Root Design Tokens (Light Mode Default) ───────────────────────────────── */
 :root {
-  /* ─── PrivyLM Brand Palette ─── */
+  /* PrivyLM Brand Palette */
   --privy-paper: #f5f0e8;
   --privy-paper-alt: #fdf6ec;
   --privy-ink: #2c3e50;
@@ -29,7 +30,7 @@
   --teal-hover: #6a8e6f;
   --teal-muted: rgba(122, 158, 126, 0.18);
 
-  /* Background mappings (light, paper-first) */
+  /* Background mappings */
   --bg-primary: var(--privy-paper);
   --bg-secondary: var(--privy-paper-alt);
   --bg-surface: var(--privy-paper-alt);
@@ -69,18 +70,21 @@
   --accent-foreground: var(--light);
   --destructive: #b94a48;
 
-  /* Warning (for alerts) */
+  /* Semantic colors */
   --warning: #c1694f;
   --warning-muted: rgba(193, 105, 79, 0.12);
-
-  /* Success */
   --success: #7a9e7e;
   --success-muted: rgba(122, 158, 126, 0.12);
+  --error: #b94a48;
+  --error-muted: rgba(185, 74, 72, 0.12);
+  --info: #5b8fb9;
+  --info-muted: rgba(91, 143, 185, 0.12);
 
-  /* Destructive background for toasts */
+  /* Destructive backgrounds */
   --bg-destructive: rgba(185, 74, 72, 0.1);
   --bg-destructive-hover: rgba(185, 74, 72, 0.15);
 
+  /* Component tokens */
   --border: var(--border-default);
   --input: var(--bg-surface);
   --ring: var(--privy-clay);
@@ -95,12 +99,15 @@
   --sidebar-border: var(--privy-border);
   --sidebar-ring: var(--ring);
 
-  /* Legacy color system (for backward compatibility) */
+  /* Legacy color system */
   --color-1: var(--light);
   --color-2: var(--black);
   --color-3: var(--grey-light);
   --color-4: var(--grey);
   --color-5: var(--grey-dark);
+
+  /* Radius */
+  --radius: 8px;
 }
 
 @theme inline {
@@ -249,6 +256,79 @@ body {
 @keyframes spin {
   to {
     transform: rotate(360deg)
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 

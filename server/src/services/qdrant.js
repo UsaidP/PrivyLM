@@ -2,7 +2,21 @@ import { QdrantClient } from "@qdrant/js-client-rest";
 import { randomUUID } from "crypto";
 import { EMBED_CONFIG, getCollectionConfig, validateVectorDimension } from "../config/vector-config.js";
 
-const client = new QdrantClient({ url: process.env.QDRANT_URL, apiKey: process.env.QDRANT_KEY });
+// Validate QDRANT_URL and QDRANT_KEY before creating client
+const qdrantUrl = process.env.QDRANT_URL;
+const qdrantKey = process.env.QDRANT_KEY;
+
+if (!qdrantUrl || !qdrantUrl.trim()) {
+  console.error("❌ ERROR: QDRANT_URL environment variable is required");
+  console.error("   Set QDRANT_URL in your .env file (e.g., http://localhost:6333)");
+  process.exit(1);
+}
+
+if (!qdrantKey || !qdrantKey.trim()) {
+  console.warn("⚠️  WARNING: QDRANT_KEY is not set. Ensure your Qdrant instance doesn't require authentication.");
+}
+
+const client = new QdrantClient({ url: qdrantUrl, apiKey: qdrantKey });
 
 /**
  * Generate collection name for per-notebook isolation

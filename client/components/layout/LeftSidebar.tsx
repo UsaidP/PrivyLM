@@ -1,12 +1,10 @@
 "use client"
 
-import { useClerk, useUser } from "@clerk/nextjs"
 import {
   BookOpen,
   CheckCircle,
   FileText,
   Loader2,
-  LogOut,
   Plus,
   Settings,
   Trash2,
@@ -255,169 +253,6 @@ function SourceItem({
   )
 }
 
-// ─── User Profile ─────────────────────────────────────────────────────────────
-function UserProfile() {
-  const router = useRouter()
-  const { signOut } = useClerk()
-  const { user } = useUser()
-  const [showMenu, setShowMenu] = useState(false)
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push("/sign-in")
-  }
-
-  const getInitials = () => {
-    if (!user) return "U"
-    return (
-      user.firstName?.[0] ||
-      user.emailAddresses[0]?.emailAddress?.[0] ||
-      "U"
-    ).toUpperCase()
-  }
-
-  return (
-    <div style={{ position: "relative" }}>
-      <button
-        type="button"
-        onClick={() => setShowMenu((v) => !v)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "8px 12px",
-          borderRadius: 8,
-          border: "none",
-          // FIX: was hardcoded transparent with #4A4F5A hover — now uses sidebar tokens
-          background: "transparent",
-          cursor: "pointer",
-          width: "100%",
-          transition: "background 0.12s",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "var(--sidebar-accent)"
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent"
-        }}
-      >
-        {/* Avatar */}
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: "50%",
-            border: "1.5px solid var(--sidebar-border)",
-            // FIX: sidebar-primary instead of var(--accent) so it stays sage in all themes
-            background: "var(--sidebar-primary)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 11,
-            fontWeight: 700,
-            color: "var(--sidebar-primary-foreground)",
-            flexShrink: 0,
-            letterSpacing: "0.02em",
-          }}
-        >
-          {getInitials()}
-        </div>
-
-        <div style={{ flex: 1, textAlign: "left", overflow: "hidden" }}>
-          {/* FIX: was hardcoded #EEEEEE — now uses sidebar-foreground */}
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 500,
-              color: "var(--sidebar-foreground)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {user?.fullName || "User"}
-          </div>
-          <div
-            style={{
-              fontSize: 10,
-              color: "var(--text-muted)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {user?.primaryEmailAddress?.emailAddress}
-          </div>
-        </div>
-      </button>
-
-      {/* Dropdown */}
-      {showMenu && (
-        <>
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => setShowMenu(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
-                e.preventDefault()
-                setShowMenu(false)
-              }
-            }}
-            style={{ position: "fixed", inset: 0, zIndex: 99 }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "calc(100% + 8px)",
-              left: 0,
-              right: 0,
-              minWidth: 180,
-              // FIX: was var(--bg-secondary) which is paper in light mode — use sidebar token
-              background: "var(--sidebar)",
-              border: "1px solid var(--sidebar-border)",
-              borderRadius: 8,
-              // FIX: shadow was too dark for light theme
-              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-              zIndex: 100,
-              overflow: "hidden",
-            }}
-          >
-            <button
-              type="button"
-              onClick={handleSignOut}
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 14px",
-                background: "transparent",
-                border: "none",
-                color: "var(--destructive)",
-                fontSize: 12,
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "background 0.12s",
-                fontFamily: "inherit",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--sidebar-accent)"
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent"
-              }}
-            >
-              <LogOut size={14} />
-              Sign out
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
-
 // ─── Left Sidebar ─────────────────────────────────────────────────────────────
 interface LeftSidebarProps {
   notebookId: string
@@ -433,18 +268,21 @@ export function LeftSidebar({ notebookId, isMobile = false, onClose }: LeftSideb
   const { selectedIds, toggle } = useSourceSelection()
 
   async function handleFiles(files: FileList) {
-    const pdf = Array.from(files).find((f) => f.type === "application/pdf")
-    if (!pdf) {
+    const pdfs = Array.from(files).filter((f) => f.type === "application/pdf")
+    if (pdfs.length === 0) {
       toast.error("Only PDF files are supported")
       return
     }
-    if (pdf.size > 50 * 1024 * 1024) {
-      toast.error("File must be under 50MB")
+
+    const oversized = pdfs.filter((f) => f.size > 50 * 1024 * 1024)
+    if (oversized.length > 0) {
+      toast.error(`${oversized.length} file(s) exceed 50MB limit`)
       return
     }
+
     try {
-      await uploadDocument({ file: pdf })
-      toast.success("Upload started — processing…")
+      await Promise.all(pdfs.map((pdf) => uploadDocument({ file: pdf })))
+      toast.success(`Upload started for ${pdfs.length} file(s) — processing…`)
     } catch {
       toast.error("Upload failed. Please try again.")
     }
@@ -743,45 +581,6 @@ export function LeftSidebar({ notebookId, isMobile = false, onClose }: LeftSideb
             </span>
           </div>
         )}
-      </div>
-
-      {/* ── Footer: Settings + User ── */}
-      <div
-        style={{ flexShrink: 0, borderTop: "1px solid var(--sidebar-border)" }}
-      >
-        <button
-          type="button"
-          onClick={() => (window.location.href = "/settings")}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 14px",
-            border: "none",
-            background: "transparent",
-            // FIX: was hardcoded #B0B0B0 — now sidebar-foreground with opacity
-            color: "var(--sidebar-foreground)",
-            fontSize: 13,
-            cursor: "pointer",
-            transition: "background 0.12s",
-            fontFamily: "inherit",
-            opacity: 0.7,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "var(--sidebar-accent)"
-            e.currentTarget.style.opacity = "1"
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent"
-            e.currentTarget.style.opacity = "0.7"
-          }}
-        >
-          <Settings size={15} />
-          Settings
-        </button>
-
-        <UserProfile />
       </div>
     </div>
   )

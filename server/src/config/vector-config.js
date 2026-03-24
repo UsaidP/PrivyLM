@@ -6,8 +6,8 @@
 
 // Embedding model configuration
 export const EMBED_CONFIG = {
-  // API endpoint for embeddings
-  API_URL: process.env.EMBED_API_URL || "https://kimbery-grippier-renownedly.ngrok-free.dev/v1/embeddings",
+  // API endpoint for embeddings - MUST be set via EMBED_API_URL env var
+  API_URL: process.env.EMBED_API_URL,
 
   // Model identifier
   MODEL: process.env.EMBED_MODEL || "pplx-embed-v1",
@@ -24,6 +24,14 @@ export const EMBED_CONFIG = {
   // Distance metric for vector similarity
   DISTANCE: "Cosine",
 };
+
+// Validate EMBED_API_URL is set
+if (!EMBED_CONFIG.API_URL) {
+  console.error("❌ ERROR: EMBED_API_URL environment variable is required");
+  console.error("   Set EMBED_API_URL in your .env file or environment");
+  console.error("   Example: EMBED_API_URL=https://your-embedding-api.com/v1/embeddings");
+  process.exit(1);
+}
 
 // Validate vector dimension matches expected value
 export function validateVectorDimension(actualSize, expectedSize = EMBED_CONFIG.DIMENSION) {

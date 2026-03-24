@@ -6,6 +6,7 @@ import { useParams } from "next/navigation"
 import React, { FormEvent, useCallback, useEffect, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { toast } from "sonner"
+import type { Source } from "@/hooks/useChat"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
@@ -16,11 +17,6 @@ interface Message {
   content: string
   sources?: Source[]
   timestamp: Date
-}
-
-interface Source {
-  content: string
-  metadata: Record<string, unknown>
 }
 
 // ─── Suggested Prompts ────────────────────────────────────────────────────────
@@ -285,7 +281,7 @@ const MessageItem = ({ message }: { message: Message }) => {
                 Source {expandedSource + 1}
               </span>
               <p style={{ margin: "4px 0 0" }}>
-                {message.sources[expandedSource].content}
+                {message.sources[expandedSource].text}
               </p>
             </div>
           )}

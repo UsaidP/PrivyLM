@@ -1,6 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
-  "root": true,
+  "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -23,7 +22,7 @@
       }
     }
   },
-  "assist": {
+  "assists": {
     "enabled": true
   },
   "javascript": {
@@ -42,18 +41,25 @@
     }
   },
   "files": {
-    "includes": [
+    "include": [
       "client/**/*.{ts,tsx,js,jsx}",
       "server/**/*.{ts,js}",
-      "!**/.next/**",
-      "!**/out/**",
-      "!**/build/**",
-      "!**/node_modules/**",
-      "!**/generated/**",
-      "!**/*.min.js",
-      "!**/package-lock.json",
-      "!**/.prisma/**",
-      "!**/prisma/migrations/**"
+      "!client/.next",
+      "!client/out",
+      "!client/build",
+      "!server/build",
+      "!client/node_modules",
+      "!server/node_modules",
+      "!client/generated",
+      "!server/generated",
+      "!client/*.min.js",
+      "!server/*.min.js",
+      "!client/package-lock.json",
+      "!server/package-lock.json",
+      "!client/.prisma",
+      "!client/prisma/migrations",
+      "!server/.prisma",
+      "!server/prisma/migrations"
     ]
   }
 }

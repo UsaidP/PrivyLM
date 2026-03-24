@@ -119,7 +119,7 @@ export default function NotebookPage() {
               boxShadow: showLeft ? "4px 0 24px rgba(0,0,0,0.18)" : "none",
             }
             : {
-              display: showLeft ? "flex" : "none",
+              display: "flex",
               flexDirection: "column",
             }),
         }}
@@ -169,13 +169,12 @@ export default function NotebookPage() {
               boxShadow: showRight ? "-4px 0 24px rgba(0,0,0,0.18)" : "none",
             }
             : {
-              display: showRight ? "flex" : "none",
+              display: "flex",
               flexDirection: "column",
             }),
         }}
       >
         <StudioSidebar
-          notebookId={notebookId}
           onGenerate={handleGenerate}
           onClose={isMobile ? closeAll : undefined}
         />
