@@ -42,15 +42,15 @@ WORKDIR /app/server
 # Copy package files
 COPY server/package*.json ./
 
-# Copy Prisma schema BEFORE npm install (needed for postinstall)
+# Copy Prisma schema BEFORE npm install (needed for prisma generate)
 COPY server/prisma ./prisma/
 COPY server/prisma.config.ts ./
 
 # Set placeholder DB_URL for prisma generate (not used at build time)
 ENV DB_URL=postgresql://placeholder:5432/placeholder
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (ignore scripts to avoid postinstall issues)
+RUN npm ci --ignore-scripts
 
 # Generate Prisma client explicitly
 RUN npx prisma generate
